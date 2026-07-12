@@ -10,7 +10,7 @@ export function AuthProvider({ children }) {
     const checkSession = async () => {
       try {
         const response = await api.get("/api/auth/me");
-        setUser(response.data);
+        setUser(response.data.user);
       } catch (error) {
         console.error(error);
         // A 401 here just means "not logged in" — not a real error.
@@ -25,14 +25,14 @@ export function AuthProvider({ children }) {
 
   const loginAdmin = async (credentials) => {
     const response = await api.post("/api/admin/login", credentials);
-    setUser(response.data);
-    return response.data;
+    setUser(response.data.user);
+    return response.data.user;
   };
 
   const loginPartner = async (credentials) => {
     const response = await api.post("/api/partner/login", credentials);
-    setUser(response.data);
-    return response.data;
+    setUser(response.data.user);
+    return response.data.user;
   };
 
   const logout = async () => {

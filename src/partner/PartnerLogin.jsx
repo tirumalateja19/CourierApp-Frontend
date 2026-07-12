@@ -3,13 +3,13 @@ import boxes from "../assets/boxes.png";
 import { useAuth } from "../context/useAuth";
 import { useNavigate } from "react-router";
 
-const AdminLogin = () => {
+const PartnerLogin = () => {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
-  const navigate=useNavigate();
-  const { loginAdmin } = useAuth();
+  const navigate = useNavigate();
+  const { loginPartner } = useAuth();
   const reset = () => {
     setError(null);
     setUserName("");
@@ -20,8 +20,8 @@ const AdminLogin = () => {
     setError(null);
     setSubmitting(true);
     try {
-      await loginAdmin({ userName, password });
-      navigate("/admin/dashboard");
+      await loginPartner({ userName, password });
+      navigate("/partner/dashboard");
     } catch (err) {
       setError(err?.response?.data?.message || "Login failed");
     } finally {
@@ -44,7 +44,7 @@ const AdminLogin = () => {
                       rounded-3xl p-10 w-[90%] max-w-sm flex flex-col gap-3"
       >
         <h2 className="text-black text-3xl font-serif text-center tracking-wide">
-          Admin Login
+          Partner Login
         </h2>
         {error && (
           <div
@@ -117,4 +117,4 @@ const AdminLogin = () => {
   );
 };
 
-export default AdminLogin;
+export default PartnerLogin;
