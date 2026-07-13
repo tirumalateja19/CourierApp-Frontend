@@ -12,7 +12,7 @@ const GuestRoute = () => {
     );
   }
   if (user) {
-    console.log("user object:", user);
+    // console.log("user object:", user);
     const dashboard =
       user.role === "admin" ? "/admin/dashboard" : "/partner/dashboard";
     return <Navigate to={dashboard} replace />;
