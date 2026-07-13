@@ -1,7 +1,7 @@
 import { Navigate, Outlet } from "react-router";
 import { useAuth } from "../context/useAuth";
 
-const ProtectedRoute = ({ requiredRole }) => {
+const AuthGate = ({ requiredRole, guestOnly = false }) => {
   const { user, loading } = useAuth();
 
   if (loading) {
@@ -10,6 +10,15 @@ const ProtectedRoute = ({ requiredRole }) => {
         <p className="text-lg font-medium">Loading...</p>
       </div>
     );
+  }
+
+  if (guestOnly) {
+    if (user) {
+      const dashboard =
+        user.role === "admin" ? "/admin/dashboard" : "/partner/dashboard";
+      return <Navigate to={dashboard} replace />;
+    }
+    return <Outlet />;
   }
 
   if (!user) {
@@ -27,4 +36,4 @@ const ProtectedRoute = ({ requiredRole }) => {
   return <Outlet />;
 };
 
-export default ProtectedRoute;
+export default AuthGate;

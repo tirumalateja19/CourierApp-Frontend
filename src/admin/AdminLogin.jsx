@@ -8,7 +8,7 @@ const AdminLogin = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   const { loginAdmin } = useAuth();
   const reset = () => {
     setError(null);
@@ -21,7 +21,7 @@ const AdminLogin = () => {
     setSubmitting(true);
     try {
       await loginAdmin({ userName, password });
-      navigate("/admin/dashboard");
+      navigate("/admin/layout");
     } catch (err) {
       setError(err?.response?.data?.message || "Login failed");
     } finally {

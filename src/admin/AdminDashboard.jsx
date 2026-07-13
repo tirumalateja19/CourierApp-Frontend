@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import LogoutButton from "../auth/Logout";
 import api from "../api/axios";
 import { Link } from "react-router";
 
@@ -64,12 +63,7 @@ const AdminDashboard = () => {
   }, [statusFilter, assignedToFilter, fromDate, toDate]);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-black">All Jobs</h1>
-        <LogoutButton />
-      </div>
-
+    <div className="p-2">
       <div className="flex flex-wrap gap-4 mb-4 items-end">
         <div>
           <label
