@@ -1,50 +1,50 @@
 import { useState } from "react";
-import boxes from "../assets/boxes.png";
-import { useAuth } from "../context/useAuth";
-import { useNavigate } from "react-router";
+import toast from "react-hot-toast";
+import api from "../api/axios";
 
-const AdminLogin = () => {
+const CreatePartner = () => {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
+  const [contactNumber, setContactNumber] = useState("");
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
-  const navigate = useNavigate();
-  const { loginAdmin } = useAuth();
+
   const reset = () => {
     setError(null);
     setUserName("");
     setPassword("");
+    setContactNumber("");
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
     setSubmitting(true);
     try {
-      await loginAdmin({ userName, password });
-      navigate("/admin/layout");
+      const res = await api.post("/api/admin/create-partner", {
+        userName,
+        password,
+        contactNumber,
+      });
+
+      toast.success(res.data.message || "Partner created successfully");
+      reset();
     } catch (err) {
-      setError(err?.response?.data?.message || "Login failed");
+      console.log(err);
+      setError(err?.response?.data?.message || "Failed to create partner");
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div
-      className="h-screen w-screen bg-contain bg-center flex items-center justify-center"
-      style={{
-        backgroundImage: `url(${boxes})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-      }}
-    >
+    <div className="flex items-center justify-center mt-24">
       <div
         className="backdrop-blur-md bg-white/20 border border-white/70 shadow-2xl 
                       rounded-3xl p-10 w-[90%] max-w-sm flex flex-col gap-3"
       >
         <h2 className="text-black text-3xl font-serif text-center tracking-wide">
-          Admin Login
+          Create Partner
         </h2>
         {error && (
           <div
@@ -68,7 +68,7 @@ const AdminLogin = () => {
               id="userName"
               name="userName"
               className="input validator bg-white/20 border border-white/30 
-                     text-blac focus:outline-none"
+                     text-black focus:outline-none"
               value={userName}
               onChange={(e) => setUserName(e.target.value)}
               required
@@ -88,16 +88,32 @@ const AdminLogin = () => {
               type="password"
               id="password"
               name="password"
-              type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="input validator bg-white/20 border border-white/30 
-                     text-blac focus:outline-none"
+                     text-black focus:outline-none"
               required
               placeholder="Password"
               minLength="8"
               pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
               title="Must be more than 8 characters, including number, lowercase letter, uppercase letter"
+            />
+            <label
+              htmlFor="contact"
+              className="block text-sm font-medium text-black mt-3 mb-1"
+            >
+              Contact
+            </label>
+            <input
+              type="tel"
+              id="contact"
+              name="contact"
+              value={contactNumber}
+              onChange={(e) => setContactNumber(e.target.value)}
+              className="input validator bg-white/20 border border-white/30 
+                     text-black focus:outline-none"
+              required
+              placeholder="Contact number"
             />
           </div>
           <div className="flex flex-col mt-2 gap-4 sm:flex-row sm:gap-4">
@@ -105,9 +121,9 @@ const AdminLogin = () => {
               type="submit"
               disabled={submitting}
               className="w-32 sm:w-40 mt-4 bg-white/30 backdrop-blur-sm text-black font-semibold 
-               py-2.5 rounded-xl hover:bg-white/40 transition cursor-pointer"
+               py-2.5 rounded-xl hover:bg-white/40 transition cursor-pointer disabled:opacity-50"
             >
-              {submitting ? "Logging in..." : "Login"}
+              {submitting ? "Creating..." : "Create"}
             </button>
 
             <button
@@ -115,7 +131,7 @@ const AdminLogin = () => {
               onClick={reset}
               disabled={submitting}
               className="w-32 sm:w-40 mt-4 bg-white/30 backdrop-blur-sm text-black font-semibold 
-               py-2.5 rounded-xl hover:bg-white/40 transition"
+               py-2.5 rounded-xl hover:bg-white/40 transition disabled:opacity-50"
             >
               Clear
             </button>
@@ -126,4 +142,4 @@ const AdminLogin = () => {
   );
 };
 
-export default AdminLogin;
+export default CreatePartner;

@@ -1,12 +1,23 @@
 import { useState } from "react";
 import { Outlet, Link } from "react-router";
-import { LayoutDashboard, PlusCircle, Users, Settings, LogOut, KeyRound } from "lucide-react";
+import {
+  LayoutDashboard,
+  PlusCircle,
+  UserPlus,
+  Users,
+  Settings,
+  LogOut,
+  KeyRound,
+  Search,
+} from "lucide-react";
 import { useAuth } from "../context/useAuth";
 
 const ADMIN_LINKS = [
   { to: "/admin/dashboard", label: "Jobs", icon: LayoutDashboard },
-  { to: "/admin/jobs/new", label: "Create Job", icon: PlusCircle },
+  { to: "/admin/jobs/create-job", label: "Create Job", icon: PlusCircle },
   { to: "/admin/partners", label: "Partners", icon: Users },
+  { to: "/admin/search", label: "Search", icon: Search },
+  { to: "/admin/jobs/create-partner", label: "Create Partner", icon: UserPlus },
 ];
 
 const PARTNER_LINKS = [
@@ -44,22 +55,30 @@ const Layout = () => {
             </svg>
           </label>
 
-          <div className="px-4 flex-1">Courier App</div>
+          <div className="px-4 flex-1">
+            <div className="aura aura-sm">
+              <button className="btn">Courier App</button>
+            </div>
+          </div>
 
-          {/* Settings dropdown — userName + Change Password + Logout */}
           <div className="dropdown dropdown-end relative">
             <button
               onClick={() => setSettingsOpen((prev) => !prev)}
               className="btn btn-ghost flex items-center gap-2"
             >
-              <span className="text-sm font-medium">{user?.userName}</span>
+              <span className="text-sm font-medium capitalize">
+                {user?.userName}
+              </span>
               <Settings className="size-4" />
             </button>
 
             {settingsOpen && (
               <ul className="menu dropdown-content bg-base-100 rounded-box z-10 mt-2 w-52 p-2 shadow">
                 <li>
-                  <Link to="/change-password" onClick={() => setSettingsOpen(false)}>
+                  <Link
+                    to="/change-password"
+                    onClick={() => setSettingsOpen(false)}
+                  >
                     <KeyRound className="size-4" />
                     Change Password
                   </Link>
@@ -95,7 +114,7 @@ const Layout = () => {
                 <li key={link.to}>
                   <Link
                     to={link.to}
-                    className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
+                    className="is-drawer-close:tooltip is-drawer-close:tooltip-right my-3"
                     data-tip={link.label}
                   >
                     <Icon className="size-4" />

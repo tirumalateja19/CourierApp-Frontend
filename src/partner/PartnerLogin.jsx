@@ -64,31 +64,40 @@ const PartnerLogin = () => {
               UserName
             </label>
             <input
+              type="text"
               id="userName"
               name="userName"
-              type="text"
+              className="input validator bg-white/20 border border-white/30 
+                     text-blac focus:outline-none"
               value={userName}
               onChange={(e) => setUserName(e.target.value)}
               required
-              className="p-3 w-full rounded-xl bg-white/40 border border-white/30 
-                     text-black placeholder:text-black focus:outline-none"
+              placeholder="Username"
+              pattern="[A-Za-z][A-Za-z0-9\-]*"
+              minLength="3"
+              maxLength="30"
+              title="Only letters, numbers or dash"
             />
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-black mt-2 mb-1"
+              className="block text-sm font-medium text-black mt-3 mb-1"
             >
               Password
             </label>
             <input
+              type="password"
               id="password"
               name="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
-              autoComplete="current-password"
-              className="p-3 w-full rounded-xl bg-white/20 border border-white/30 
+              className="input validator bg-white/20 border border-white/30 
                      text-blac focus:outline-none"
+              required
+              placeholder="Password"
+              minLength="8"
+              pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+              title="Must be more than 8 characters, including number, lowercase letter, uppercase letter"
             />
           </div>
           <div className="flex flex-col mt-2 gap-4 sm:flex-row sm:gap-4">

@@ -7,10 +7,15 @@ import Layout from "./components/Layout";
 import AdminDashboard from "./admin/AdminDashboard";
 import PartnerDashboard from "./partner/PartnerDashboard";
 import ChangePassword from "./auth/ChangePassword";
+import CreatePartner from "./admin/CreatePartner";
+import Partners from "./admin/Partners";
+import CreateJob from "./admin/CreateJob";
+import { Toaster } from "react-hot-toast";
 
 const App = () => {
   return (
     <BrowserRouter>
+      <Toaster position="top-right" />
       <Routes>
         <Route element={<AuthGate guestOnly />}>
           <Route path="/" element={<Landing />} />
@@ -21,6 +26,15 @@ const App = () => {
         <Route element={<AuthGate requiredRole="admin" />}>
           <Route element={<Layout />}>
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/partners" element={<Partners />}></Route>
+            <Route
+              path="/admin/jobs/create-job"
+              element={<CreateJob />}
+            ></Route>
+            <Route
+              path="/admin/jobs/create-partner"
+              element={<CreatePartner />}
+            ></Route>
           </Route>
         </Route>
 

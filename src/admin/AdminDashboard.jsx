@@ -164,7 +164,9 @@ const AdminDashboard = () => {
             >
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="font-semibold text-black">{job.clientName}</p>
+                  <p className="font-semibold text-black capitalize">
+                    {job.clientName}
+                  </p>
                   <p className="text-sm text-gray-600">
                     {job.clientAddress}, {job.clientCity}
                   </p>

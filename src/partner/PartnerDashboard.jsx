@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router";
 import api from "../api/axios";
-import LogoutButton from "../auth/Logout";
 
 const STATUS_OPTIONS = [
   { value: "", label: "All" },
@@ -42,11 +41,7 @@ const PartnerDashboard = () => {
   }, [statusFilter]);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-black">My Jobs</h1>
-        <LogoutButton/>
-      </div>
+    <div className="p-2">
 
       <div className="mb-4">
         <label
