@@ -30,7 +30,6 @@ const CreatePartner = () => {
       toast.success(res.data.message || "Partner created successfully");
       reset();
     } catch (err) {
-      console.log(err);
       setError(err?.response?.data?.message || "Failed to create partner");
     } finally {
       setSubmitting(false);
