@@ -4,7 +4,6 @@ import api from "../api/axios";
 
 const STATUS_OPTIONS = [
   { value: "", label: "All" },
-  { value: "created", label: "Created" },
   { value: "assigned", label: "Assigned" },
   { value: "en_route", label: "En_route" },
   { value: "picked_up", label: "Picked_up" },
@@ -17,7 +16,6 @@ const PartnerDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [statusFilter, setStatusFilter] = useState("");
-
 
   useEffect(() => {
     const fetchJobs = async () => {
