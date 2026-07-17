@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import api from "../api/axios";
 import Items from "../jobs/items";
+import JobDetailsForm from "../jobs/jobDetailsForm";
+import PhotoUpload from "../jobs/photoUpload";
 
 const PartnerJobDetail = () => {
   const { id } = useParams();
@@ -37,11 +39,8 @@ const PartnerJobDetail = () => {
     clientAddress,
     clientCity,
     networkName,
+    assignedTo,
     status,
-    receiverName,
-    receiverNumber,
-    receiverAddress,
-    receiverCity,
   } = jobData;
 
   return (
@@ -59,27 +58,29 @@ const PartnerJobDetail = () => {
         </p>
         <p className="text-sm text-gray-600">{clientNumber}</p>
         {networkName && (
-          <p className="text-sm text-gray-500 mt-1">Network: {networkName}</p>
+          <p className="text-sm text-gray-500">Network: {networkName}</p>
         )}
-
-        <div className="mt-4 border-t border-gray-200 pt-4">
-          <h3 className="font-semibold text-black mb-1">Receiver Details</h3>
-          {receiverName ? (
-            <>
-              <p className="text-sm text-gray-700">{receiverName}</p>
-              <p className="text-sm text-gray-600">{receiverNumber}</p>
-              <p className="text-sm text-gray-600">
-                {receiverAddress}, {receiverCity}
-              </p>
-            </>
-          ) : (
-            <p className="text-sm text-gray-400 italic">Not filled in yet</p>
+        <p className="text-sm text-gray-600 capitalize">
+          Assigned to:{" "}
+          {assignedTo || (
+            <span className="italic text-gray-400">Unassigned</span>
           )}
-        </div>
+        </p>
 
         <div className="mt-4 border-t border-gray-200 pt-4">
           <h3 className="font-semibold text-black mb-2">Items</h3>
           <Items items={items} jobId={id} setItems={setItems} />
+        </div>
+        <div className="mt-4 border-t border-gray-200 pt-4">
+          <PhotoUpload jobId={id} />
+        </div>
+
+        <div className="mt-4 border-t border-gray-200 pt-4">
+          <JobDetailsForm
+            jobData={jobData}
+            jobId={id}
+            setJobData={setJobData}
+          />
         </div>
       </div>
     </div>

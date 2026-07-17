@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router";
+import { useNavigate } from "react-router";
 import api from "../api/axios";
+import toast from "react-hot-toast";
 
 const STATUS_OPTIONS = [
   { value: "", label: "All" },
@@ -16,6 +17,8 @@ const PartnerDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [statusFilter, setStatusFilter] = useState("");
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -38,9 +41,16 @@ const PartnerDashboard = () => {
     fetchJobs();
   }, [statusFilter]);
 
+  const handleJobClick = (job) => {
+    if (job.locked) {
+      toast.error("Cannot access — this job is locked");
+      return;
+    }
+    navigate(`/partner/jobs/${job._id}`);
+  };
+
   return (
     <div className="p-2">
-
       <div className="mb-4">
         <label
           htmlFor="statusFilter"
@@ -77,10 +87,10 @@ const PartnerDashboard = () => {
       {!loading && !error && jobs.length > 0 && (
         <div className="grid gap-4">
           {jobs.map((job) => (
-            <Link
+            <div
               key={job._id}
-              to={`/partner/jobs/${job._id}`}
-              className="block bg-white rounded-xl border border-gray-200 p-4 hover:shadow-md transition"
+              onClick={() => handleJobClick(job)}
+              className="block bg-white rounded-xl border border-gray-200 p-4 hover:shadow-md transition cursor-pointer"
             >
               <div className="flex justify-between items-start">
                 <div>
@@ -89,11 +99,18 @@ const PartnerDashboard = () => {
                     {job.clientAddress}, {job.clientCity}
                   </p>
                 </div>
-                <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700">
-                  {job.status}
-                </span>
+                <div>
+                  <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700">
+                    {job.status}
+                  </span>
+                  {job?.locked && (
+                    <span className="text-xs px-2 py-1 rounded-full bg-red-100 text-red-700 ml-2">
+                      Locked
+                    </span>
+                  )}
+                </div>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       )}
