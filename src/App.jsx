@@ -12,6 +12,7 @@ import Partners from "./admin/Partners";
 import CreateJob from "./admin/CreateJob";
 import { Toaster } from "react-hot-toast";
 import PartnerJobDetail from "./partner/PartnerJobDetail";
+import AdminJobDetail from "./admin/AdminJobDetail";
 
 const App = () => {
   return (
@@ -36,6 +37,7 @@ const App = () => {
               path="/admin/jobs/create-partner"
               element={<CreatePartner />}
             ></Route>
+            <Route path="/admin/jobs/:id" element={<AdminJobDetail/>}></Route>
           </Route>
         </Route>
 
@@ -51,7 +53,7 @@ const App = () => {
 
         <Route element={<AuthGate />}>
           <Route element={<Layout />}>
-            <Route path="/change-password" element={<ChangePassword />} />
+            <Route path="/auth/change-password" element={<ChangePassword />} />
           </Route>
         </Route>
       </Routes>

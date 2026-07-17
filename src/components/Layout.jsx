@@ -76,7 +76,7 @@ const Layout = () => {
               <ul className="menu dropdown-content bg-base-100 rounded-box z-10 mt-2 w-52 p-2 shadow">
                 <li>
                   <Link
-                    to="/change-password"
+                    to="/auth/change-password"
                     onClick={() => setSettingsOpen(false)}
                   >
                     <KeyRound className="size-4" />

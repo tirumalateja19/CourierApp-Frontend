@@ -171,9 +171,16 @@ const AdminDashboard = () => {
                     {job.clientAddress}, {job.clientCity}
                   </p>
                 </div>
-                <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700">
-                  {job.status}
-                </span>
+                <div>
+                  <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700">
+                    {job.status}
+                  </span>
+                  {job?.locked && (
+                    <span className="text-xs px-2 py-1 rounded-full bg-red-100 text-red-700 ml-2">
+                      Locked
+                    </span>
+                  )}
+                </div>
               </div>
             </Link>
           ))}
