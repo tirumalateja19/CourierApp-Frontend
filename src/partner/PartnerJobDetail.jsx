@@ -4,6 +4,7 @@ import api from "../api/axios";
 import Items from "../jobs/items";
 import JobDetailsForm from "../jobs/jobDetailsForm";
 import PhotoUpload from "../jobs/photoUpload";
+import SubmitSection from "../jobs/SubmitSection";
 
 const PartnerJobDetail = () => {
   const { id } = useParams();
@@ -81,6 +82,9 @@ const PartnerJobDetail = () => {
             jobId={id}
             setJobData={setJobData}
           />
+        </div>
+        <div className="mt-4 border-t border-gray-200 pt-4">
+          <SubmitSection jobData={jobData} jobId={id} setJobData={setJobData} />
         </div>
       </div>
     </div>
