@@ -5,6 +5,10 @@ import api from "../api/axios";
 import JobDetailsForm from "../jobs/jobDetailsForm";
 import Items from "../jobs/items";
 import PhotoUpload from "../jobs/photoUpload";
+import PdfDownloads from "./PdfDownloads";
+import AdminSubmit from "./AdminSubmit";
+import GenerateInvoice from "./GenerateInvoice";
+import Shipment from "../components/Shipment";
 
 const LOCK_REASONS = [
   { value: "review", label: "Review" },
@@ -16,7 +20,6 @@ const LOCK_REASONS = [
 const STATUS_OPTIONS = [
   { value: "picked_up", label: "Picked Up" },
   { value: "at_office", label: "At Office" },
-  { value: "dispatched", label: "Dispatched" },
 ];
 
 const AdminJobDetail = () => {
@@ -315,6 +318,14 @@ const AdminJobDetail = () => {
             jobId={id}
             setJobData={setJobData}
           />
+        </div>
+        <div>
+          <AdminSubmit jobData={jobData} jobId={id} setJobData={setJobData} />
+          <GenerateInvoice jobData={jobData} jobId={id} />
+          <PdfDownloads jobId={id} />
+        </div>
+        <div>
+          <Shipment jobData={jobData} jobId={id} setJobData={setJobData} />
         </div>
       </div>
     </div>

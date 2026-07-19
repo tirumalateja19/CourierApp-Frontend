@@ -32,8 +32,12 @@ const SubmitSection = ({ jobData, jobId, setJobData }) => {
   const handleDefer = async () => {
     setDeferring(true);
     try {
-      const response = await api.post(`/api/jobs/pickup/${jobId}/defer-invoice`);
-      toast.success(response.data.message || "Invoice deferred, POD slip generating");
+      const response = await api.post(
+        `/api/jobs/pickup/${jobId}/defer-invoice`,
+      );
+      toast.success(
+        response.data.message || "Invoice deferred, POD slip generating",
+      );
       await refetchJob();
     } catch (err) {
       toast.error(err?.response?.data?.message || "Failed to defer invoice");
@@ -62,10 +66,10 @@ const SubmitSection = ({ jobData, jobId, setJobData }) => {
   const handleDownloadInvoice = async () => {
     try {
       const response = await fetch(invoiceUrl);
-      console.log("status:", response.status, "ok:", response.ok);
+      // console.log("status:", response.status, "ok:", response.ok);
 
       const blob = await response.blob();
-      console.log("blob size:", blob.size, "blob type:", blob.type);
+      // console.log("blob size:", blob.size, "blob type:", blob.type);
 
       const blobUrl = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
