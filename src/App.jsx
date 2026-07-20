@@ -1,8 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router";
 import AuthGate from "./components/AuthGate";
-import Landing from "./components/Landing";
-import AdminLogin from "./admin/AdminLogin";
-import PartnerLogin from "./partner/PartnerLogin";
 import Layout from "./components/Layout";
 import AdminDashboard from "./admin/AdminDashboard";
 import PartnerDashboard from "./partner/PartnerDashboard";
@@ -13,16 +10,15 @@ import CreateJob from "./admin/CreateJob";
 import { Toaster } from "react-hot-toast";
 import PartnerJobDetail from "./partner/PartnerJobDetail";
 import AdminJobDetail from "./admin/AdminJobDetail";
+import Login from "./auth/Login";
 
 const App = () => {
   return (
     <BrowserRouter>
-      <Toaster position="top-right" />
+      <Toaster position="top-center" />
       <Routes>
         <Route element={<AuthGate guestOnly />}>
-          <Route path="/" element={<Landing />} />
-          <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/partner/login" element={<PartnerLogin />} />
+          <Route path="/" element={<Login />} />
         </Route>
 
         <Route element={<AuthGate requiredRole="admin" />}>

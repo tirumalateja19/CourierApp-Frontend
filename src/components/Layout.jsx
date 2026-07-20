@@ -8,7 +8,6 @@ import {
   Settings,
   LogOut,
   KeyRound,
-  Search,
 } from "lucide-react";
 import { useAuth } from "../context/useAuth";
 
@@ -16,7 +15,7 @@ const ADMIN_LINKS = [
   { to: "/admin/dashboard", label: "Jobs", icon: LayoutDashboard },
   { to: "/admin/jobs/create-job", label: "Create Job", icon: PlusCircle },
   { to: "/admin/partners", label: "Partners", icon: Users },
-  { to: "/admin/search", label: "Search", icon: Search },
+  // { to: "/admin/search", label: "Search", icon: Search },
   { to: "/admin/jobs/create-partner", label: "Create Partner", icon: UserPlus },
 ];
 

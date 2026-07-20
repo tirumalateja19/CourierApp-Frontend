@@ -2,13 +2,13 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import toast from "react-hot-toast";
 import api from "../api/axios";
-import JobDetailsForm from "../jobs/jobDetailsForm";
-import Items from "../jobs/items";
-import PhotoUpload from "../jobs/photoUpload";
+import JobDetailsForm from "../jobs/JobDetailsForm";
+import Items from "../jobs/Items";
+import PhotoUpload from "../jobs/PhotoUpload";
 import PdfDownloads from "./PdfDownloads";
 import AdminSubmit from "./AdminSubmit";
 import GenerateInvoice from "./GenerateInvoice";
-import Shipment from "../components/Shipment";
+import Shipment from "../jobs/Shipment";
 
 const LOCK_REASONS = [
   { value: "review", label: "Review" },

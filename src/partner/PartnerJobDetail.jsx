@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import api from "../api/axios";
-import Items from "../jobs/items";
-import JobDetailsForm from "../jobs/jobDetailsForm";
-import PhotoUpload from "../jobs/photoUpload";
+import Items from "../jobs/Items";
+import JobDetailsForm from "../jobs/JobDetailsForm";
+import PhotoUpload from "../jobs/PhotoUpload";
 import SubmitSection from "../jobs/SubmitSection";
 
 const PartnerJobDetail = () => {

@@ -22,9 +22,7 @@ const AuthGate = ({ requiredRole, guestOnly = false }) => {
   }
 
   if (!user) {
-    const loginPath =
-      requiredRole === "admin" ? "/admin/login" : "/partner/login";
-    return <Navigate to={loginPath} replace />;
+    return <Navigate to="/" state={{ preselectRole: requiredRole }} replace />;
   }
 
   if (requiredRole && user.role !== requiredRole) {
