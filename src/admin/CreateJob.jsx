@@ -1,49 +1,45 @@
 import { useState } from "react";
-import { Truck } from "lucide-react";
-import api from "../api/axios";
+import { User, Phone, MapPin, Building2, Weight, CalendarDays, Ship, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
+import api from "../api/axios";
 
-const NETWORK_OPTIONS = ["FedEx", "UPS", "DHL", "DPD"];
+const initialForm = {
+  clientName: "",
+  clientNumber: "",
+  clientAddress: "",
+  clientCity: "",
+  approxWeight: "",
+  scheduledTime: "",
+  networkName: "",
+};
 
 const CreateJob = () => {
-  const [clientName, setClientName] = useState("");
-  const [clientNumber, setClientNumber] = useState("");
-  const [clientAddress, setClientAddress] = useState("");
-  const [clientCity, setClientCity] = useState("");
-  const [approxWeight, setApproxWeight] = useState("");
-  const [scheduledTime, setScheduledTime] = useState("");
-  const [networkName, setNetworkName] = useState("");
-
-  const [error, setError] = useState(null);
+  const [formData, setFormData] = useState(initialForm);
+  const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  const reset = () => {
-    setError(null);
-    setClientName("");
-    setClientNumber("");
-    setClientAddress("");
-    setClientCity("");
-    setApproxWeight("");
-    setScheduledTime("");
-    setNetworkName("");
+  const handleChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+    if (error) setError("");
+  };
+
+  const resetForm = () => {
+    setFormData(initialForm);
+    setError("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
     setSubmitting(true);
+    setError("");
+
     try {
-      const response = await api.post("/api/jobs/new-job", {
-        clientName,
-        clientNumber,
-        clientAddress,
-        clientCity,
-        approxWeight,
-        scheduledTime,
-        networkName,
-      });
-      toast.success(response?.data?.message || "Job created");
-      reset();
+      const { data } = await api.post("/api/jobs/new-job", formData);
+      toast.success(data?.message || "Job created");
+      resetForm();
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to create job");
     } finally {
@@ -51,152 +47,109 @@ const CreateJob = () => {
     }
   };
 
-  const inputClass =
-    "w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-black placeholder:text-gray-400 focus:outline-none focus:border-gray-400 transition";
-  const labelClass = "block text-sm font-medium text-black mb-1.5";
+  const fields = [
+    { label: "Client Name", name: "clientName", type: "text", placeholder: "Enter client name", icon: User, required: true },
+    { label: "Client Number", name: "clientNumber", type: "tel", placeholder: "Enter mobile number", icon: Phone, required: true },
+    { label: "Client Address", name: "clientAddress", type: "text", placeholder: "Enter address", icon: MapPin, required: true },
+    { label: "Client City", name: "clientCity", type: "text", placeholder: "Enter city", icon: Building2, required: true },
+    { label: "Approx Weight (kg)", name: "approxWeight", type: "number", placeholder: "Enter weight", icon: Weight, required: true },
+    { label: "Scheduled Time", name: "scheduledTime", type: "datetime-local", icon: CalendarDays, required: true },
+  ];
 
   return (
-    <div className="flex items-center justify-center p-2">
-      <div className="w-full max-w-lg bg-white rounded-2xl border border-gray-200 p-8">
-        <h2 className="text-xl font-semibold text-black mb-6">Create Job</h2>
+    <div className="mt-10 flex justify-center px-4">
+      <div className="w-full max-w-2xl rounded-2xl border border-gray-200 bg-white p-8 shadow-lg">
+        <h2 className="mb-6 text-center text-3xl font-bold text-gray-800">
+          Create Job
+        </h2>
 
         {error && (
-          <div className="text-sm text-red-500 text-center bg-red-500/10 border border-red-500/20 rounded-lg py-2 px-3 mb-4">
+          <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <form onSubmit={handleSubmit} className="grid gap-5 md:grid-cols-2">
+          {fields.map(({ icon: Icon, label, ...field }) => (
+            <div
+              key={field.name}
+              className={field.name === "clientAddress" ? "md:col-span-2" : ""}
+            >
+              <label
+                htmlFor={field.name}
+                className="mb-2 block text-sm font-medium text-gray-700"
+              >
+                {label}
+              </label>
+
+              <div className="relative">
+                <Icon
+                  size={18}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
+                />
+
+                <input
+                  id={field.name}
+                  {...field}
+                  value={formData[field.name]}
+                  onChange={handleChange}
+                  className="w-full rounded-lg border border-gray-300 py-3 pl-11 pr-4 outline-none transition focus:border-black"
+                />
+              </div>
+            </div>
+          ))}
           <div>
-            <label htmlFor="clientName" className={labelClass}>
-              Client Name
+            <label
+              htmlFor="networkName"
+              className="mb-2 block text-sm font-medium text-gray-700"
+            >
+              Network Name
             </label>
-            <input
-              id="clientName"
-              type="text"
-              value={clientName}
-              placeholder="Client name"
-              onChange={(e) => setClientName(e.target.value)}
-              required
-              className={inputClass}
-            />
-          </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="clientNumber" className={labelClass}>
-                Client Number
-              </label>
-              <input
-                id="clientNumber"
-                type="tel"
-                value={clientNumber}
-                placeholder="Phone number"
-                onChange={(e) => setClientNumber(e.target.value)}
-                required
-                className={inputClass}
+            <div className="relative">
+              <Ship
+                size={18}
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
               />
-            </div>
-            <div>
-              <label htmlFor="clientCity" className={labelClass}>
-                Client City
-              </label>
-              <input
-                id="clientCity"
-                type="text"
-                placeholder="City"
-                value={clientCity}
-                onChange={(e) => setClientCity(e.target.value)}
-                required
-                className={inputClass}
-              />
+
+              <select
+                id="networkName"
+                name="networkName"
+                value={formData.networkName}
+                onChange={handleChange}
+                className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-3 pl-11 pr-4 outline-none transition focus:border-black"
+              >
+                <option value="">Select Network</option>
+
+                <option value="OPTION_1">DHL</option>
+                <option value="OPTION_2">UPS</option>
+                <option value="OPTION_3">FedEX</option>
+                <option value="OPTION_4">DPD</option>
+              </select>
             </div>
           </div>
 
-          <div>
-            <label htmlFor="clientAddress" className={labelClass}>
-              Client Address
-            </label>
-            <input
-              id="clientAddress"
-              type="text"
-              value={clientAddress}
-              placeholder="Street address"
-              onChange={(e) => setClientAddress(e.target.value)}
-              required
-              className={inputClass}
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="approxWeight" className={labelClass}>
-                Approx Weight
-              </label>
-              <input
-                id="approxWeight"
-                type="number"
-                placeholder="kg"
-                value={approxWeight}
-                onChange={(e) => setApproxWeight(e.target.value)}
-                required
-                className={inputClass}
-              />
-            </div>
-            <div>
-              <label htmlFor="scheduledTime" className={labelClass}>
-                Scheduled Time
-              </label>
-              <input
-                id="scheduledTime"
-                type="datetime-local"
-                value={scheduledTime}
-                onChange={(e) => setScheduledTime(e.target.value)}
-                required
-                className={inputClass}
-              />
-            </div>
-          </div>
-
-          {/* Network — card selector, same pattern as a payment-method picker */}
-          <div>
-            <label className={labelClass}>Network</label>
-            <div className="grid grid-cols-2 gap-3">
-              {NETWORK_OPTIONS.map((network) => {
-                const selected = networkName === network;
-                return (
-                  <button
-                    key={network}
-                    type="button"
-                    onClick={() => setNetworkName(network)}
-                    className={`flex items-center gap-2 px-4 py-3 rounded-xl border text-sm font-medium transition ${
-                      selected
-                        ? "border-black bg-gray-50 text-black"
-                        : "border-gray-200 text-gray-500 hover:border-gray-300"
-                    }`}
-                  >
-                    <Truck
-                      className={`size-4 ${selected ? "text-black" : "text-gray-400"}`}
-                    />
-                    {network}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2 mt-2">
+          <div className="flex flex-col gap-3 pt-2 md:col-span-2 sm:flex-row">
             <button
               type="submit"
               disabled={submitting}
-              className="w-full py-3 rounded-xl bg-black text-white font-semibold hover:bg-gray-800 transition disabled:opacity-50"
+              className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-black py-3 font-semibold text-white transition hover:bg-gray-800 disabled:opacity-60"
             >
-              {submitting ? "Creating..." : "Create Job"}
+              {submitting ? (
+                <>
+                  <Loader2 size={18} className="animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                "Create Job"
+              )}
             </button>
+
             <button
               type="button"
-              onClick={reset}
-              className="w-full py-2 text-sm text-gray-500 hover:text-black transition"
+              onClick={resetForm}
+              disabled={submitting}
+              className="flex-1 rounded-lg border border-gray-300 bg-white py-3 font-semibold text-gray-700 transition hover:bg-gray-100 disabled:opacity-60"
             >
               Clear
             </button>

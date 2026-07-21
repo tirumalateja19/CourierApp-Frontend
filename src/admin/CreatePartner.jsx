@@ -1,34 +1,63 @@
 import { useState } from "react";
+import {
+  User,
+  Lock,
+  Phone,
+  Eye,
+  EyeOff,
+  Loader2,
+} from "lucide-react";
 import toast from "react-hot-toast";
 import api from "../api/axios";
 
+const initialForm = {
+  userName: "",
+  password: "",
+  confirmPassword: "",
+  contactNumber: "",
+};
+
 const CreatePartner = () => {
-  const [userName, setUserName] = useState("");
-  const [password, setPassword] = useState("");
-  const [contactNumber, setContactNumber] = useState("");
-  const [error, setError] = useState(null);
+  const [formData, setFormData] = useState(initialForm);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  const reset = () => {
-    setError(null);
-    setUserName("");
-    setPassword("");
-    setContactNumber("");
+  const handleChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+    if (error) setError("");
+  };
+
+  const resetForm = () => {
+    setFormData(initialForm);
+    setError("");
+    setShowPassword(false);
+    setShowConfirmPassword(false);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
+
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
     setSubmitting(true);
+
     try {
-      const res = await api.post("/api/admin/create-partner", {
-        userName,
-        password,
-        contactNumber,
+      const { data } = await api.post("/api/admin/create-partner", {
+        userName: formData.userName,
+        password: formData.password,
+        contactNumber: formData.contactNumber,
       });
 
-      toast.success(res.data.message || "Partner created successfully");
-      reset();
+      toast.success(data.message || "Partner created successfully");
+      resetForm();
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to create partner");
     } finally {
@@ -36,101 +65,149 @@ const CreatePartner = () => {
     }
   };
 
+  const passwordsMatch =
+    formData.confirmPassword &&
+    formData.password === formData.confirmPassword;
+
+  const passwordsDontMatch =
+    formData.confirmPassword &&
+    formData.password !== formData.confirmPassword;
+
   return (
-    <div className="flex items-center justify-center mt-24">
-      <div
-        className="backdrop-blur-md bg-white/20 border border-white/70 shadow-2xl 
-                      rounded-3xl p-10 w-[90%] max-w-sm flex flex-col gap-3"
-      >
-        <h2 className="text-black text-3xl font-serif text-center tracking-wide">
+    <div className="mt-12 flex justify-center px-4">
+      <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-8 shadow-lg">
+        <h2 className="mb-6 text-center text-3xl font-bold text-gray-800">
           Create Partner
         </h2>
+
         {error && (
-          <div
-            className="text-sm text-red-500 text-center bg-red-500/10 
-                  border border-red-500/20 rounded-lg py-2 px-3"
-          >
+          <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label
-              htmlFor="userName"
-              className="block text-sm font-medium text-black mt-2 mb-1"
-            >
-              UserName
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+              Username
             </label>
-            <input
-              type="text"
-              id="userName"
-              name="userName"
-              className="input validator bg-white/20 border border-white/30 
-                     text-black focus:outline-none"
-              value={userName}
-              onChange={(e) => setUserName(e.target.value)}
-              required
-              placeholder="Username"
-              pattern="[A-Za-z][A-Za-z0-9\-]*"
-              minLength="3"
-              maxLength="30"
-              title="Only letters, numbers or dash"
-            />
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-black mt-3 mb-1"
-            >
+            <div className="relative">
+              <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
+              <input
+                type="text"
+                name="userName"
+                value={formData.userName}
+                onChange={handleChange}
+                required
+                placeholder="Enter username"
+                pattern="[A-Za-z][A-Za-z0-9\\-]*"
+                minLength={3}
+                maxLength={30}
+                title="Only letters, numbers or dash"
+                className="w-full rounded-lg border border-gray-300 py-3 pl-11 pr-4 outline-none transition focus:border-black"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-medium text-gray-700">
               Password
             </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="input validator bg-white/20 border border-white/30 
-                     text-black focus:outline-none"
-              required
-              placeholder="Password"
-              minLength="8"
-              pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
-              title="Must be more than 8 characters, including number, lowercase letter, uppercase letter"
-            />
-            <label
-              htmlFor="contact"
-              className="block text-sm font-medium text-black mt-3 mb-1"
-            >
-              Contact
-            </label>
-            <input
-              type="tel"
-              id="contact"
-              name="contact"
-              value={contactNumber}
-              onChange={(e) => setContactNumber(e.target.value)}
-              className="input validator bg-white/20 border border-white/30 
-                     text-black focus:outline-none"
-              required
-              placeholder="Contact number"
-            />
+            <div className="relative">
+              <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                placeholder="Enter password"
+                minLength={8}
+                pattern="(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                className="w-full rounded-lg border border-gray-300 py-3 pl-11 pr-11 outline-none transition focus:border-black"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((p) => !p)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-black"
+              >
+                {showPassword ? <EyeOff size={18}/> : <Eye size={18}/>}
+              </button>
+            </div>
           </div>
-          <div className="flex flex-col mt-2 gap-4 sm:flex-row sm:gap-4">
+
+          <div>
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+              Confirm Password
+            </label>
+            <div className="relative">
+              <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                required
+                placeholder="Confirm password"
+                className="w-full rounded-lg border border-gray-300 py-3 pl-11 pr-11 outline-none transition focus:border-black"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword((p) => !p)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-black"
+              >
+                {showConfirmPassword ? <EyeOff size={18}/> : <Eye size={18}/>}
+              </button>
+            </div>
+
+            {passwordsMatch && (
+              <p className="mt-2 text-sm text-green-600">✓ Passwords match</p>
+            )}
+
+            {passwordsDontMatch && (
+              <p className="mt-2 text-sm text-red-500">✗ Passwords do not match</p>
+            )}
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+              Contact Number
+            </label>
+            <div className="relative">
+              <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
+              <input
+                type="tel"
+                name="contactNumber"
+                value={formData.contactNumber}
+                onChange={handleChange}
+                required
+                placeholder="Enter contact number"
+                className="w-full rounded-lg border border-gray-300 py-3 pl-11 pr-4 outline-none transition focus:border-black"
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-3 pt-2 sm:flex-row">
             <button
               type="submit"
               disabled={submitting}
-              className="w-32 sm:w-40 mt-4 bg-white/30 backdrop-blur-sm text-black font-semibold 
-               py-2.5 rounded-xl hover:bg-white/40 transition cursor-pointer disabled:opacity-50"
+              className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-black py-3 font-semibold text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {submitting ? "Creating..." : "Create"}
+              {submitting ? (
+                <>
+                  <Loader2 size={18} className="animate-spin"/>
+                  Creating...
+                </>
+              ) : (
+                "Create Partner"
+              )}
             </button>
 
             <button
               type="button"
-              onClick={reset}
+              onClick={resetForm}
               disabled={submitting}
-              className="w-32 sm:w-40 mt-4 bg-white/30 backdrop-blur-sm text-black font-semibold 
-               py-2.5 rounded-xl hover:bg-white/40 transition disabled:opacity-50"
+              className="flex-1 rounded-lg border border-gray-300 bg-white py-3 font-semibold text-gray-700 transition hover:bg-gray-100 disabled:opacity-60"
             >
               Clear
             </button>
