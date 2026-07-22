@@ -2,13 +2,14 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import api from "../api/axios";
 
+const inputClass = "p-2 rounded-lg border border-gray-300 text-sm";
+
 const Items = ({ items, jobId, setItems }) => {
   const [itemName, setItemName] = useState("");
   const [quantity, setQuantity] = useState("");
   const [fragile, setFragile] = useState(false);
   const [adding, setAdding] = useState(false);
 
-  // Edit state — tracks which single item is currently being edited
   const [editingId, setEditingId] = useState(null);
   const [editItemName, setEditItemName] = useState("");
   const [editQuantity, setEditQuantity] = useState("");
@@ -97,7 +98,6 @@ const Items = ({ items, jobId, setItems }) => {
         <ul className="flex flex-col gap-1 mb-3">
           {items.map((item) =>
             editingId === item._id ? (
-              // --- Inline edit row ---
               <li
                 key={item._id}
                 className="flex flex-wrap items-center gap-2 border-b border-gray-100 py-2"
@@ -106,15 +106,15 @@ const Items = ({ items, jobId, setItems }) => {
                   type="text"
                   value={editItemName}
                   onChange={(e) => setEditItemName(e.target.value)}
-                  className="p-1 rounded border border-gray-300 text-sm w-32"
+                  className={`${inputClass} w-32`}
                 />
                 <input
                   type="number"
                   value={editQuantity}
                   onChange={(e) => setEditQuantity(e.target.value)}
-                  className="p-1 rounded border border-gray-300 text-sm w-20"
+                  className={`${inputClass} w-20`}
                 />
-                <label className="flex items-center gap-1 text-sm text-gray-600">
+                <label className="flex items-center gap-1.5 text-sm text-gray-600">
                   <input
                     type="checkbox"
                     checked={editFragile}
@@ -125,40 +125,39 @@ const Items = ({ items, jobId, setItems }) => {
                 <button
                   onClick={() => handleSaveEdit(item._id)}
                   disabled={savingEdit}
-                  className="text-xs px-3 py-1 rounded-lg bg-black text-white hover:bg-gray-800 transition disabled:opacity-50"
+                  className="text-sm px-3 py-2 rounded-lg bg-black text-white hover:bg-gray-800 transition disabled:opacity-50"
                 >
                   {savingEdit ? "Saving..." : "Save"}
                 </button>
                 <button
                   onClick={cancelEditing}
                   disabled={savingEdit}
-                  className="text-xs px-3 py-1 rounded-lg bg-gray-200 text-black hover:bg-gray-300 transition"
+                  className="text-sm px-3 py-2 rounded-lg bg-gray-200 text-black hover:bg-gray-300 transition"
                 >
                   Cancel
                 </button>
               </li>
             ) : (
-              // --- Normal display row ---
               <li
                 key={item._id}
-                className="flex items-center justify-between border-b border-gray-100 py-1 text-sm text-gray-700"
+                className="flex items-center justify-between border-b border-gray-100 py-2 text-sm text-gray-700"
               >
                 <span className="flex-1">{item.itemName}</span>
-                <span className="w-16 text-center">Qty: {item.quantity}</span>
-                <span className="w-24 text-center">
+                <span className="w-20 text-center">Qty: {item.quantity}</span>
+                <span className="w-28 text-center">
                   {item.fragile ? "Fragile" : "Not fragile"}
                 </span>
                 <span className="flex gap-2">
                   <button
                     onClick={() => startEditing(item)}
-                    className="text-xs px-2 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 transition"
+                    className="text-sm px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 transition"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => handleDelete(item._id)}
                     disabled={deletingId === item._id}
-                    className="text-xs px-2 py-1 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 transition disabled:opacity-50"
+                    className="text-sm px-3 py-1.5 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 transition disabled:opacity-50"
                   >
                     {deletingId === item._id ? "..." : "Delete"}
                   </button>
@@ -169,7 +168,6 @@ const Items = ({ items, jobId, setItems }) => {
         </ul>
       )}
 
-      {/* Add new item */}
       <form
         onSubmit={handleAdd}
         className="flex flex-wrap items-center gap-2 mt-2"
@@ -180,7 +178,7 @@ const Items = ({ items, jobId, setItems }) => {
           onChange={(e) => setItemName(e.target.value)}
           placeholder="Item name"
           required
-          className="p-1.5 rounded border border-gray-300 text-sm w-32"
+          className={`${inputClass} w-32`}
         />
         <input
           type="number"
@@ -189,9 +187,9 @@ const Items = ({ items, jobId, setItems }) => {
           placeholder="Qty"
           required
           min="1"
-          className="p-1.5 rounded border border-gray-300 text-sm w-20"
+          className={`${inputClass} w-20`}
         />
-        <label className="flex items-center gap-1 text-sm text-gray-600">
+        <label className="flex items-center gap-1.5 text-sm text-gray-600">
           <input
             type="checkbox"
             checked={fragile}
@@ -202,9 +200,9 @@ const Items = ({ items, jobId, setItems }) => {
         <button
           type="submit"
           disabled={adding}
-          className="text-sm px-3 py-1.5 rounded-lg bg-black text-white hover:bg-gray-800 transition disabled:opacity-50"
+          className="text-sm px-4 py-2 rounded-lg bg-black text-white hover:bg-gray-800 transition disabled:opacity-50"
         >
-          {adding ? "Adding..." : "+ Add Item"}
+          {adding ? "Adding..." : "+ Add item"}
         </button>
       </form>
     </div>

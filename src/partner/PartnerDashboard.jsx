@@ -5,12 +5,12 @@ import api from "../api/axios";
 import toast from "react-hot-toast";
 
 const STATUS_OPTIONS = [
-  { value: "", label: "Status" },
-  { value: "assigned", label: "Assigned" },
-  { value: "en_route", label: "En_route" },
-  { value: "picked_up", label: "Picked_up" },
-  { value: "at_office", label: "At_office" },
-  { value: "dispatched", label: "Dispatched" },
+  { value: "", label: "All" },
+  { value: "Created", label: "Created" },
+  { value: "Assigned", label: "Assigned" },
+  { value: "PickedUp", label: "Picked Up" },
+  { value: "AtOffice", label: "At Office" },
+  { value: "Dispatched", label: "Dispatched" },
 ];
 
 const MONTHS = [

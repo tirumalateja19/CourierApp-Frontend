@@ -37,6 +37,9 @@ const JobDetailsForm = ({ jobData, jobId, setJobData }) => {
     jobData.packingStatus || "",
   );
   const [price, setPrice] = useState(jobData.price || "");
+  const [numberOfPackages, SetNumberOfPackages] = useState(
+    jobData.numberOfPackages || "",
+  );
   const [savingPackage, setSavingPackage] = useState(false);
 
   const handleSaveReceiver = async (e) => {
@@ -74,6 +77,7 @@ const JobDetailsForm = ({ jobData, jobId, setJobData }) => {
         dimensionsHeight,
         packingStatus,
         price,
+        numberOfPackages,
       });
       setJobData((prev) => ({ ...prev, ...response.data.jobData }));
       toast.success("Package info saved");
@@ -93,20 +97,22 @@ const JobDetailsForm = ({ jobData, jobId, setJobData }) => {
       {/* Receiver Details */}
       <form onSubmit={handleSaveReceiver} className="flex flex-col gap-2">
         <h3 className="font-semibold text-black">Receiver Details</h3>
-        <input
-          type="text"
-          placeholder="Receiver Name"
-          value={receiverName}
-          onChange={(e) => setReceiverName(e.target.value)}
-          className={inputClass}
-        />
-        <input
-          type="tel"
-          placeholder="Receiver Number"
-          value={receiverNumber}
-          onChange={(e) => setReceiverNumber(e.target.value)}
-          className={inputClass}
-        />
+        <div className="flex gap-2">
+          <input
+            type="text"
+            placeholder="Receiver Name"
+            value={receiverName}
+            onChange={(e) => setReceiverName(e.target.value)}
+            className={inputClass}
+          />
+          <input
+            type="tel"
+            placeholder="Receiver Number"
+            value={receiverNumber}
+            onChange={(e) => setReceiverNumber(e.target.value)}
+            className={inputClass}
+          />
+        </div>
         <input
           type="text"
           placeholder="Receiver Address"
@@ -142,13 +148,29 @@ const JobDetailsForm = ({ jobData, jobId, setJobData }) => {
       {/* Package Info */}
       <form onSubmit={handleSavePackage} className="flex flex-col gap-2">
         <h3 className="font-semibold text-black">Package Info</h3>
-        <input
-          type="number"
-          placeholder="Weight (kg)"
-          value={weight}
-          onChange={(e) => setWeight(e.target.value)}
-          className={inputClass}
-        />
+        <div className="flex gap-2">
+          <input
+            type="number"
+            placeholder="Weight (kg)"
+            value={weight}
+            onChange={(e) => setWeight(e.target.value)}
+            className={inputClass}
+          />
+          <input
+            type="number"
+            placeholder="Price"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            className={inputClass}
+          />
+          <input
+            type="number"
+            placeholder="Number of Packages"
+            value={numberOfPackages}
+            onChange={(e) => SetNumberOfPackages(e.target.value)}
+            className={inputClass}
+          />
+        </div>
         <div className="flex gap-2">
           <input
             type="number"
@@ -172,13 +194,6 @@ const JobDetailsForm = ({ jobData, jobId, setJobData }) => {
             className={inputClass}
           />
         </div>
-        <input
-          type="number"
-          placeholder="Price"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          className={inputClass}
-        />
         <select
           value={packingStatus}
           onChange={(e) => setPackingStatus(e.target.value)}

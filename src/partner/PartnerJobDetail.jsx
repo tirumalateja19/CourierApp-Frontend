@@ -5,6 +5,11 @@ import Items from "../jobs/Items";
 import JobDetailsForm from "../jobs/JobDetailsForm";
 import PhotoUpload from "../jobs/PhotoUpload";
 import SubmitSection from "../jobs/SubmitSection";
+import JobTimeline from "../jobs/JobTimeline";
+import JobSummary from "../jobs/JobSummary";
+
+const sectionClass = "border-t border-gray-200 pt-5";
+const sectionLabelClass = "text-base font-semibold text-black mb-3";
 
 const PartnerJobDetail = () => {
   const { id } = useParams();
@@ -34,57 +39,47 @@ const PartnerJobDetail = () => {
   if (error) return <div className="p-2 text-red-600">{error}</div>;
   if (!jobData) return <div className="p-2">Job not found</div>;
 
-  const {
-    clientName,
-    clientNumber,
-    clientAddress,
-    clientCity,
-    networkName,
-    assignedTo,
-    status,
-  } = jobData;
+  const { clientName, clientNumber, clientAddress, clientCity } = jobData;
 
   return (
     <div className="p-2">
-      <div className="bg-white rounded-xl border border-gray-200 p-6 max-w-2xl">
-        <div className="flex items-start justify-between">
-          <h2 className="text-2xl font-bold text-black mb-1">{clientName}</h2>
-          <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700">
-            {status}
-          </span>
-        </div>
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8">
+        <div className="bg-white rounded-2xl border border-gray-200 p-6 flex flex-col gap-5">
+          <div>
+            <h2 className="text-2xl font-bold text-black mb-1">{clientName}</h2>
+            <p className="text-sm text-gray-600">
+              {clientAddress}, {clientCity}
+            </p>
+            <p className="text-sm text-gray-600">{clientNumber}</p>
+          </div>
 
-        <p className="text-sm text-gray-600">
-          {clientAddress}, {clientCity}
-        </p>
-        <p className="text-sm text-gray-600">{clientNumber}</p>
-        {networkName && (
-          <p className="text-sm text-gray-500">Network: {networkName}</p>
-        )}
-        <p className="text-sm text-gray-600 capitalize">
-          Assigned to:{" "}
-          {assignedTo || (
-            <span className="italic text-gray-400">Unassigned</span>
-          )}
-        </p>
+          <div className={sectionClass}>
+            <h3 className={sectionLabelClass}>Items</h3>
+            <Items items={items} jobId={id} setItems={setItems} />
+          </div>
 
-        <div className="mt-4 border-t border-gray-200 pt-4">
-          <h3 className="font-semibold text-black mb-2">Items</h3>
-          <Items items={items} jobId={id} setItems={setItems} />
-        </div>
-        <div className="mt-4 border-t border-gray-200 pt-4">
-          <PhotoUpload jobId={id} />
-        </div>
+          <div className={sectionClass}>
+            <h3 className={sectionLabelClass}>Photo upload</h3>
+            <PhotoUpload jobId={id} />
+          </div>
 
-        <div className="mt-4 border-t border-gray-200 pt-4">
-          <JobDetailsForm
-            jobData={jobData}
-            jobId={id}
-            setJobData={setJobData}
-          />
-        </div>
-        <div className="mt-4 border-t border-gray-200 pt-4">
+          <div className={sectionClass}>
+            <JobDetailsForm
+              jobData={jobData}
+              jobId={id}
+              setJobData={setJobData}
+            />
+          </div>
+
           <SubmitSection jobData={jobData} jobId={id} setJobData={setJobData} />
+        </div>
+
+        <div className="flex flex-col gap-6">
+          <div className="bg-white rounded-2xl border border-gray-200 p-5">
+            <p className="text-xs text-gray-500 mb-4">Progress</p>
+            <JobTimeline status={jobData.status} />
+          </div>
+          <JobSummary jobData={jobData} />
         </div>
       </div>
     </div>

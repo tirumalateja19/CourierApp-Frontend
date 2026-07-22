@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { Upload } from "lucide-react";
 import toast from "react-hot-toast";
 import api from "../api/axios";
 
@@ -15,11 +16,9 @@ const PhotoUpload = ({ jobId }) => {
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [lastUploadedUrl, setLastUploadedUrl] = useState(null);
+  const formRef = useRef(null);
 
   const handleFileChange = (e) => {
-    // File inputs are always "uncontrolled" in the sense that you can't set
-    // their value programmatically — you only read what the user picked.
-    // e.target.files is a FileList; we just want the first (only) file.
     setFile(e.target.files[0] || null);
   };
 
@@ -34,11 +33,8 @@ const PhotoUpload = ({ jobId }) => {
       return;
     }
 
-    // Unlike every other request so far, this body can't be a plain JS
-    // object — it has to be FormData, which is how the browser packages
-    // a file for upload alongside other fields.
     const formData = new FormData();
-    formData.append("photo", file); // key name must match backend's Multer field name
+    formData.append("photo", file);
     formData.append("label", label);
 
     setUploading(true);
@@ -46,15 +42,13 @@ const PhotoUpload = ({ jobId }) => {
       const response = await api.post(
         `/api/jobs/pickup/${jobId}/photos`,
         formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        },
+        { headers: { "Content-Type": "multipart/form-data" } },
       );
       toast.success(response.data.message || "Photo uploaded");
       setLastUploadedUrl(response.data.photo.fileUrl);
       setLabel("");
       setFile(null);
-      e.target.reset(); // clears the native file input's displayed filename
+      formRef.current?.reset();
     } catch (err) {
       toast.error(err?.response?.data?.message || "Failed to upload photo");
     } finally {
@@ -65,13 +59,14 @@ const PhotoUpload = ({ jobId }) => {
   return (
     <div>
       <form
+        ref={formRef}
         onSubmit={handleUpload}
-        className="flex flex-wrap gap-2 items-center"
+        className="flex flex-col gap-3"
       >
         <select
           value={label}
           onChange={(e) => setLabel(e.target.value)}
-          className="p-2 rounded-lg border border-gray-300 text-sm"
+          className="p-2 rounded-lg border border-gray-300 text-sm w-full"
         >
           <option value="">Select label</option>
           {LABEL_OPTIONS.map((opt) => (
@@ -82,23 +77,31 @@ const PhotoUpload = ({ jobId }) => {
         </select>
 
         <input
+          id="photo-file-input"
           type="file"
           accept="image/*"
           onChange={handleFileChange}
-          className="text-sm"
+          className="hidden"
         />
+        <label
+          htmlFor="photo-file-input"
+          className="flex items-center gap-2 p-3 rounded-lg border border-dashed border-gray-300 text-sm text-gray-500 cursor-pointer hover:border-gray-400 hover:bg-gray-50 transition"
+        >
+          <Upload className="size-4 shrink-0" />
+          <span className="truncate">
+            {file ? file.name : "Click to choose a photo"}
+          </span>
+        </label>
 
         <button
           type="submit"
           disabled={uploading}
-          className="text-sm px-4 py-2 rounded-lg bg-black text-white hover:bg-gray-800 transition disabled:opacity-50"
+          className="self-start text-sm px-4 py-1.5 rounded-lg bg-black text-white hover:bg-gray-800 transition disabled:opacity-50"
         >
-          {uploading ? "Uploading..." : "Upload Photo"}
+          {uploading ? "Uploading..." : "Upload photo"}
         </button>
       </form>
 
-      {/* Transient confirmation — only shows the most recent upload this
-          session, built from the POST response, not fetched from a GET. */}
       {lastUploadedUrl && (
         <div className="mt-3">
           <p className="text-xs text-gray-500 mb-1">Last uploaded:</p>
