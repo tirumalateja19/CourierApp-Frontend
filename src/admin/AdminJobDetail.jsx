@@ -9,6 +9,8 @@ import PdfDownloads from "./PdfDownloads";
 import AdminSubmit from "./AdminSubmit";
 import GenerateInvoice from "./GenerateInvoice";
 import Shipment from "../jobs/Shipment";
+import JobTimeline from "../jobs/JobTimeline";
+import JobSummary from "../jobs/JobSummary";
 
 const LOCK_REASONS = [
   { value: "review", label: "Review" },
@@ -18,9 +20,13 @@ const LOCK_REASONS = [
 ];
 
 const STATUS_OPTIONS = [
-  { value: "picked_up", label: "Picked Up" },
-  { value: "at_office", label: "At Office" },
+  { value: "PickedUp", label: "Picked Up" },
+  { value: "AtOffice", label: "At Office" },
+  { value: "Dispatched", label: "Dispatched" },
 ];
+
+const sectionClass = "border-t border-gray-200 pt-5";
+const sectionLabelClass = "text-base font-semibold text-black mb-3";
 
 const AdminJobDetail = () => {
   const { id } = useParams();
@@ -162,170 +168,163 @@ const AdminJobDetail = () => {
   if (error) return <div className="p-2 text-red-600">{error}</div>;
   if (!jobData) return <div className="p-2">Job not found</div>;
 
-  const {
-    clientName,
-    clientNumber,
-    clientAddress,
-    clientCity,
-    status,
-    locked,
-    assignedTo,
-    networkName,
-  } = jobData;
+  const { clientName, clientNumber, clientAddress, clientCity } = jobData;
 
   return (
     <div className="p-2">
-      <div className="bg-white rounded-xl border border-gray-200 p-6 max-w-2xl flex flex-col gap-6">
-        <div>
-          <div className="flex items-start justify-between">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8">
+        <div className="bg-white rounded-2xl border border-gray-200 p-6 flex flex-col gap-5">
+          <div>
             <h2 className="text-2xl font-bold text-black mb-1">{clientName}</h2>
-            <div className="flex gap-2 items-center">
-              <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700">
-                {status}
-              </span>
-              {locked && (
-                <span className="text-xs px-2 py-1 rounded-full bg-red-100 text-red-700">
-                  Locked
-                </span>
+            <p className="text-sm text-gray-600">
+              {clientAddress}, {clientCity}
+            </p>
+            <p className="text-sm text-gray-600">{clientNumber}</p>
+          </div>
+
+          <div
+            className={`${sectionClass} grid grid-cols-1 sm:grid-cols-3 gap-6`}
+          >
+            <div>
+              <h3 className={sectionLabelClass}>Update status</h3>
+              <div className="flex flex-col gap-2">
+                <select
+                  value={statusValue}
+                  onChange={(e) => setStatusValue(e.target.value)}
+                  className="p-2 rounded-lg border border-gray-300 text-sm w-full"
+                >
+                  <option value="">Select new status</option>
+                  {STATUS_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  onClick={handleUpdateStatus}
+                  disabled={updatingStatus}
+                  className="text-sm px-4 py-2 rounded-lg bg-black text-white hover:bg-gray-800 transition disabled:opacity-50"
+                >
+                  {updatingStatus ? "..." : "Update status"}
+                </button>
+              </div>
+            </div>
+
+            {jobData.status === "Created" && (
+              <div>
+                <h3 className={sectionLabelClass}>Assign job</h3>
+                <div className="flex flex-col gap-2">
+                  <select
+                    value={selectedPartnerId}
+                    onChange={(e) => setSelectedPartnerId(e.target.value)}
+                    disabled={partnersLoading}
+                    className="p-2 rounded-lg border border-gray-300 text-sm w-full"
+                  >
+                    <option value="">Select a partner</option>
+                    {partners.map((partner) => (
+                      <option key={partner._id} value={partner._id}>
+                        {partner.userName}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    onClick={handleAssign}
+                    disabled={assigning}
+                    className="text-sm px-4 py-2 rounded-lg bg-black text-white hover:bg-gray-800 transition disabled:opacity-50"
+                  >
+                    {assigning ? "..." : "Assign"}
+                  </button>
+                  <span className="text-xs text-gray-400 text-center">or</span>
+                  <button
+                    onClick={handleSelfAssign}
+                    disabled={assigning}
+                    className="text-sm px-4 py-2 rounded-lg bg-gray-200 text-black hover:bg-gray-300 transition disabled:opacity-50"
+                  >
+                    Self-Assign
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <div>
+              <h3 className={sectionLabelClass}>Lock / unlock</h3>
+              {jobData.locked ? (
+                <button
+                  onClick={handleUnlock}
+                  disabled={lockingOrUnlocking}
+                  className="text-sm px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition disabled:opacity-50 w-full"
+                >
+                  {lockingOrUnlocking ? "..." : "Unlock job"}
+                </button>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  <select
+                    value={lockReason}
+                    onChange={(e) => setLockReason(e.target.value)}
+                    className="p-2 rounded-lg border border-gray-300 text-sm w-full"
+                  >
+                    <option value="">Select a reason</option>
+                    {LOCK_REASONS.map((r) => (
+                      <option key={r.value} value={r.value}>
+                        {r.label}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    onClick={handleLock}
+                    disabled={lockingOrUnlocking}
+                    className="text-sm px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition disabled:opacity-50"
+                  >
+                    {lockingOrUnlocking ? "..." : "Lock job"}
+                  </button>
+                </div>
               )}
             </div>
           </div>
-          <p className="text-sm text-gray-600">
-            {clientAddress}, {clientCity}
-          </p>
-          <p className="text-sm text-gray-600">{clientNumber}</p>
-          {networkName && (
-            <p className="text-sm text-gray-500">Network: {networkName}</p>
-          )}
-          <p className="text-sm text-gray-600 capitalize">
-            Assigned to:{" "}
-            {assignedTo || (
-              <span className="italic text-gray-400">Unassigned</span>
-            )}
-          </p>
-        </div>
 
-        {/* Assign / Self-assign — only shown before a job has been picked up */}
-        {status === "created" && (
-          <div className="border-t border-gray-200 pt-4">
-            <h3 className="font-semibold text-black mb-2">Assign Job</h3>
-            <div className="flex flex-wrap gap-2 items-center">
-              <select
-                value={selectedPartnerId}
-                onChange={(e) => setSelectedPartnerId(e.target.value)}
-                disabled={partnersLoading}
-                className="p-2 rounded-lg border border-gray-300 text-sm"
-              >
-                <option value="">Select a partner</option>
-                {partners.map((partner) => (
-                  <option key={partner._id} value={partner._id}>
-                    {partner.userName}
-                  </option>
-                ))}
-              </select>
-              <button
-                onClick={handleAssign}
-                disabled={assigning}
-                className="text-sm px-4 py-2 rounded-lg bg-black text-white hover:bg-gray-800 transition disabled:opacity-50"
-              >
-                {assigning ? "..." : "Assign"}
-              </button>
-              <span className="text-sm text-gray-400">or</span>
-              <button
-                onClick={handleSelfAssign}
-                disabled={assigning}
-                className="text-sm px-4 py-2 rounded-lg bg-gray-200 text-black hover:bg-gray-300 transition disabled:opacity-50"
-              >
-                Self-Assign
-              </button>
+          <div className={sectionClass}>
+            <h3 className={sectionLabelClass}>Items</h3>
+            <Items items={items} jobId={id} setItems={setItems} />
+          </div>
+
+          <div className={sectionClass}>
+            <h3 className={sectionLabelClass}>Photo upload</h3>
+            <PhotoUpload jobId={id} />
+          </div>
+
+          <div className={sectionClass}>
+            <JobDetailsForm
+              jobData={jobData}
+              jobId={id}
+              setJobData={setJobData}
+            />
+          </div>
+
+          <div className={sectionClass}>
+            <h3 className={sectionLabelClass}>Documents</h3>
+            <div className="flex flex-col gap-4">
+              <AdminSubmit
+                jobData={jobData}
+                jobId={id}
+                setJobData={setJobData}
+              />
+              <GenerateInvoice jobData={jobData} jobId={id} />
+              <PdfDownloads jobId={id} />
             </div>
           </div>
-        )}
 
-        <div className="border-t border-gray-200 pt-4">
-          <h3 className="font-semibold text-black mb-2">Update Status</h3>
-          <div className="flex flex-wrap gap-2 items-center">
-            <select
-              value={statusValue}
-              onChange={(e) => setStatusValue(e.target.value)}
-              className="p-2 rounded-lg border border-gray-300 text-sm"
-            >
-              <option value="">Select new status</option>
-              {STATUS_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-            <button
-              onClick={handleUpdateStatus}
-              disabled={updatingStatus}
-              className="text-sm px-4 py-2 rounded-lg bg-black text-white hover:bg-gray-800 transition disabled:opacity-50"
-            >
-              {updatingStatus ? "..." : "Update Status"}
-            </button>
+          <div className={sectionClass}>
+            <h3 className={sectionLabelClass}>Shipment</h3>
+            <Shipment jobData={jobData} jobId={id} setJobData={setJobData} />
           </div>
         </div>
 
-        {/* Lock / Unlock */}
-        <div className="border-t border-gray-200 pt-4">
-          <h3 className="font-semibold text-black mb-2">Lock / Unlock</h3>
-          {locked ? (
-            <button
-              onClick={handleUnlock}
-              disabled={lockingOrUnlocking}
-              className="text-sm px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition disabled:opacity-50"
-            >
-              {lockingOrUnlocking ? "..." : "Unlock Job"}
-            </button>
-          ) : (
-            <div className="flex flex-wrap gap-2 items-center">
-              <select
-                value={lockReason}
-                onChange={(e) => setLockReason(e.target.value)}
-                className="p-2 rounded-lg border border-gray-300 text-sm"
-              >
-                <option value="">Select a reason</option>
-                {LOCK_REASONS.map((r) => (
-                  <option key={r.value} value={r.value}>
-                    {r.label}
-                  </option>
-                ))}
-              </select>
-              <button
-                onClick={handleLock}
-                disabled={lockingOrUnlocking}
-                className="text-sm px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition disabled:opacity-50"
-              >
-                {lockingOrUnlocking ? "..." : "Lock Job"}
-              </button>
-            </div>
-          )}
-        </div>
-
-        <div className="border-t border-gray-200 pt-4">
-          <h3 className="font-semibold text-black mb-2">Items</h3>
-          <Items items={items} jobId={id} setItems={setItems} />
-        </div>
-
-        <div className="mt-4 border-t border-gray-200 pt-4">
-          <PhotoUpload jobId={id} />
-        </div>
-
-        <div className="border-t border-gray-200 pt-4">
-          <JobDetailsForm
-            jobData={jobData}
-            jobId={id}
-            setJobData={setJobData}
-          />
-        </div>
-        <div>
-          <AdminSubmit jobData={jobData} jobId={id} setJobData={setJobData} />
-          <GenerateInvoice jobData={jobData} jobId={id} />
-          <PdfDownloads jobId={id} />
-        </div>
-        <div>
-          <Shipment jobData={jobData} jobId={id} setJobData={setJobData} />
+        <div className="flex flex-col gap-6">
+          <div className="bg-white rounded-2xl border border-gray-200 p-5">
+            <p className="text-xs text-gray-500 mb-4">Progress</p>
+            <JobTimeline status={jobData.status} />
+          </div>
+          <JobSummary jobData={jobData} />
         </div>
       </div>
     </div>

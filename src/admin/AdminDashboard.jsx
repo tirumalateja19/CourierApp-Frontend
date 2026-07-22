@@ -1,16 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
-import { ChevronDown, Calendar, Lock } from "lucide-react";
+import { ChevronDown, Calendar, Lock,Loader2 } from "lucide-react";
 import api from "../api/axios";
 
 const STATUS_OPTIONS = [
   { value: "", label: "All" },
-  { value: "created", label: "Created" },
-  { value: "assigned", label: "Assigned" },
-  { value: "en_route", label: "En_route" },
-  { value: "picked_up", label: "Picked_up" },
-  { value: "at_office", label: "At_office" },
-  { value: "dispatched", label: "Dispatched" },
+  { value: "Created", label: "Created" },
+  { value: "Assigned", label: "Assigned" },
+  { value: "PickedUp", label: "Picked Up" },
+  { value: "AtOffice", label: "At Office" },
+  { value: "Dispatched", label: "Dispatched" },
 ];
 
 const MONTHS = [
@@ -161,7 +160,11 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {loading && <p className="text-gray-500">Loading jobs...</p>}
+      {loading && (
+        <div className="flex justify-center py-10">
+          <Loader2 size={32} className="animate-spin text-black" />
+        </div>
+      )}
 
       {error && (
         <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg py-2 px-3 mb-4">

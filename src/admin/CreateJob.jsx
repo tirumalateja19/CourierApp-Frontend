@@ -1,5 +1,13 @@
 import { useState } from "react";
-import { User, Phone, MapPin, Building2, Weight, CalendarDays, Ship, Loader2 } from "lucide-react";
+import {
+  User,
+  Phone,
+  MapPin,
+  Building2,
+  Weight,
+  Ship,
+  Loader2,
+} from "lucide-react";
 import toast from "react-hot-toast";
 import api from "../api/axios";
 
@@ -9,7 +17,6 @@ const initialForm = {
   clientAddress: "",
   clientCity: "",
   approxWeight: "",
-  scheduledTime: "",
   networkName: "",
 };
 
@@ -48,12 +55,46 @@ const CreateJob = () => {
   };
 
   const fields = [
-    { label: "Client Name", name: "clientName", type: "text", placeholder: "Enter client name", icon: User, required: true },
-    { label: "Client Number", name: "clientNumber", type: "tel", placeholder: "Enter mobile number", icon: Phone, required: true },
-    { label: "Client Address", name: "clientAddress", type: "text", placeholder: "Enter address", icon: MapPin, required: true },
-    { label: "Client City", name: "clientCity", type: "text", placeholder: "Enter city", icon: Building2, required: true },
-    { label: "Approx Weight (kg)", name: "approxWeight", type: "number", placeholder: "Enter weight", icon: Weight, required: true },
-    { label: "Scheduled Time", name: "scheduledTime", type: "datetime-local", icon: CalendarDays, required: true },
+    {
+      label: "Client Name",
+      name: "clientName",
+      type: "text",
+      placeholder: "Enter client name",
+      icon: User,
+      required: true,
+    },
+    {
+      label: "Client Number",
+      name: "clientNumber",
+      type: "tel",
+      placeholder: "Enter mobile number",
+      icon: Phone,
+      required: true,
+    },
+    {
+      label: "Client Address",
+      name: "clientAddress",
+      type: "text",
+      placeholder: "Enter address",
+      icon: MapPin,
+      required: true,
+    },
+    {
+      label: "Client City",
+      name: "clientCity",
+      type: "text",
+      placeholder: "Enter city",
+      icon: Building2,
+      required: true,
+    },
+    {
+      label: "Approx Weight (kg)",
+      name: "approxWeight",
+      type: "number",
+      placeholder: "Enter weight",
+      icon: Weight,
+      required: true,
+    },
   ];
 
   return (
@@ -121,10 +162,10 @@ const CreateJob = () => {
               >
                 <option value="">Select Network</option>
 
-                <option value="OPTION_1">DHL</option>
-                <option value="OPTION_2">UPS</option>
-                <option value="OPTION_3">FedEX</option>
-                <option value="OPTION_4">DPD</option>
+                <option value="DHL">DHL</option>
+                <option value="UPS">UPS</option>
+                <option value="FedEx">FedEX</option>
+                <option value="DPD">DPD</option>
               </select>
             </div>
           </div>
