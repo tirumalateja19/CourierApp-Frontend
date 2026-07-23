@@ -38,11 +38,10 @@ const formatDateBadge = (isoString) => {
 };
 
 const STATUS_DOT_COLOR = {
-  assigned: "bg-blue-500",
-  en_route: "bg-amber-500",
-  picked_up: "bg-purple-500",
-  at_office: "bg-indigo-500",
-  dispatched: "bg-green-500",
+  Assigned: "bg-blue-500",
+  PickedUp: "bg-purple-500",
+  AtOffice: "bg-indigo-500",
+  Dispatched: "bg-green-500",
 };
 
 const PillSelect = ({ children, ...props }) => (

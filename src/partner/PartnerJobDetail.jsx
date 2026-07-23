@@ -7,6 +7,7 @@ import PhotoUpload from "../jobs/PhotoUpload";
 import SubmitSection from "../jobs/SubmitSection";
 import JobTimeline from "../jobs/JobTimeline";
 import JobSummary from "../jobs/JobSummary";
+import { Loader2 } from "lucide-react";
 
 const sectionClass = "border-t border-gray-200 pt-5";
 const sectionLabelClass = "text-base font-semibold text-black mb-3";
@@ -35,7 +36,13 @@ const PartnerJobDetail = () => {
     fetchData();
   }, [id]);
 
-  if (loading) return <div className="p-2">Loading job...</div>;
+  {
+    loading && (
+      <div className="flex justify-center py-10">
+        <Loader2 size={32} className="animate-spin text-black" />
+      </div>
+    );
+  }
   if (error) return <div className="p-2 text-red-600">{error}</div>;
   if (!jobData) return <div className="p-2">Job not found</div>;
 

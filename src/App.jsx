@@ -11,6 +11,8 @@ import { Toaster } from "react-hot-toast";
 import PartnerJobDetail from "./partner/PartnerJobDetail";
 import AdminJobDetail from "./admin/AdminJobDetail";
 import Login from "./auth/Login";
+import AuditLogList from "./admin/Auditloglist";
+import AuditLogDetail from "./admin/AuditLogDetails";
 
 const App = () => {
   return (
@@ -34,6 +36,8 @@ const App = () => {
               element={<CreatePartner />}
             ></Route>
             <Route path="/admin/jobs/:id" element={<AdminJobDetail/>}></Route>
+            <Route path="/admin/audit-logs" element={<AuditLogList/>}></Route>
+            <Route path="/admin/audit-logs/:jobId" element={<AuditLogDetail/>}></Route>
           </Route>
         </Route>
 

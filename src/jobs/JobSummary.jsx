@@ -1,10 +1,9 @@
 const STATUS_BADGE_COLOR = {
-  created: "bg-gray-100 text-gray-700",
-  assigned: "bg-blue-100 text-blue-700",
-  en_route: "bg-amber-100 text-amber-700",
-  picked_up: "bg-purple-100 text-purple-700",
-  at_office: "bg-indigo-100 text-indigo-700",
-  dispatched: "bg-green-100 text-green-700",
+  Created: "bg-gray-100 text-gray-700",
+  Assigned: "bg-blue-100 text-blue-700",
+  PickedUp: "bg-purple-100 text-purple-700",
+  AtOffice: "bg-indigo-100 text-indigo-700",
+  Dispatched: "bg-green-100 text-green-700",
 };
 
 const INVOICE_LABEL = {

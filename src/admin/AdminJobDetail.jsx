@@ -11,6 +11,7 @@ import GenerateInvoice from "./GenerateInvoice";
 import Shipment from "../jobs/Shipment";
 import JobTimeline from "../jobs/JobTimeline";
 import JobSummary from "../jobs/JobSummary";
+import { Loader2 } from "lucide-react";
 
 const LOCK_REASONS = [
   { value: "review", label: "Review" },
@@ -164,7 +165,13 @@ const AdminJobDetail = () => {
     }
   };
 
-  if (loading) return <div className="p-2">Loading job...</div>;
+  {
+    loading && (
+      <div className="flex justify-center py-10">
+        <Loader2 size={32} className="animate-spin text-black" />
+      </div>
+    );
+  }
   if (error) return <div className="p-2 text-red-600">{error}</div>;
   if (!jobData) return <div className="p-2">Job not found</div>;
 

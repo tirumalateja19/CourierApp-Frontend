@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
-import { ChevronDown, Calendar, Lock,Loader2 } from "lucide-react";
+import { ChevronDown, Calendar, Lock, Search, Loader2 } from "lucide-react";
 import api from "../api/axios";
 
 const STATUS_OPTIONS = [
@@ -11,6 +11,7 @@ const STATUS_OPTIONS = [
   { value: "AtOffice", label: "At Office" },
   { value: "Dispatched", label: "Dispatched" },
 ];
+
 
 const MONTHS = [
   "Jan",
@@ -37,12 +38,11 @@ const formatDateBadge = (isoString) => {
 };
 
 const STATUS_DOT_COLOR = {
-  created: "bg-gray-400",
-  assigned: "bg-blue-500",
-  en_route: "bg-amber-500",
-  picked_up: "bg-purple-500",
-  at_office: "bg-indigo-500",
-  dispatched: "bg-green-500",
+  Created: "bg-gray-400",
+  Assigned: "bg-blue-500",
+  PickedUp: "bg-purple-500",
+  AtOffice: "bg-indigo-500",
+  Dispatched: "bg-green-500",
 };
 
 // Shared pill wrapper for a <select> — visually a rounded pill button,
@@ -68,6 +68,18 @@ const AdminDashboard = () => {
   const [assignedToFilter, setAssignedToFilter] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const [searchInput, setSearchInput] = useState(""); // what the user is actively typing
+  const [clientNameFilter, setClientNameFilter] = useState(""); // debounced value actually sent to the API
+
+  // Wait 400ms after typing stops before updating the debounced value.
+  // If the user types again before that timer fires, the cleanup function
+  // cancels the pending update — so only the final pause actually triggers a fetch.
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setClientNameFilter(searchInput);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   const [partners, setPartners] = useState([]);
   const [partnersLoading, setPartnersLoading] = useState(true);
@@ -97,6 +109,7 @@ const AdminDashboard = () => {
         if (assignedToFilter) params.assignedToId = assignedToFilter;
         if (fromDate) params.fromDate = fromDate;
         if (toDate) params.toDate = toDate;
+        if (clientNameFilter) params.clientName = clientNameFilter;
 
         const response = await api.get("/api/jobs", { params });
         setJobs(response.data.totalJobs);
@@ -107,12 +120,23 @@ const AdminDashboard = () => {
       }
     };
     fetchJobs();
-  }, [statusFilter, assignedToFilter, fromDate, toDate]);
+  }, [statusFilter, assignedToFilter, fromDate, toDate, clientNameFilter]);
 
   return (
     <div className="p-2">
       {/* Pill filter bar */}
       <div className="flex flex-wrap gap-2 mb-6">
+        <div className="relative flex items-center gap-2 pl-4 pr-3 py-2 rounded-full border border-gray-200 bg-white text-sm text-gray-700">
+          <Search className="size-4 text-gray-400" />
+          <input
+            type="text"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            placeholder="Search client name"
+            className="bg-transparent focus:outline-none text-sm w-40"
+          />
+        </div>
+
         <PillSelect
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
@@ -170,10 +194,6 @@ const AdminDashboard = () => {
         <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg py-2 px-3 mb-4">
           {error}
         </div>
-      )}
-
-      {!loading && !error && jobs.length === 0 && (
-        <p className="text-gray-500">No jobs found.</p>
       )}
 
       {!loading && !error && jobs.length > 0 && (

@@ -7,6 +7,7 @@ import {
   Users,
   KeyRound,
   LogOut,
+  History,
 } from "lucide-react";
 import { useAuth } from "../context/useAuth";
 
@@ -15,6 +16,7 @@ const ADMIN_LINKS = [
   { to: "/admin/jobs/create-job", label: "Create Job", icon: PlusCircle },
   { to: "/admin/partners", label: "Partners", icon: Users },
   { to: "/admin/jobs/create-partner", label: "Create Partner", icon: UserPlus },
+  {to:"/admin/audit-logs",label:"Audit Logs",icon:History}
 ];
 
 const PARTNER_LINKS = [
