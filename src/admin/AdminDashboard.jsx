@@ -45,8 +45,6 @@ const STATUS_DOT_COLOR = {
   Dispatched: "bg-green-500",
 };
 
-// Shared pill wrapper for a <select> — visually a rounded pill button,
-// functionally still a native select underneath.
 const PillSelect = ({ children, ...props }) => (
   <div className="relative">
     <select
@@ -68,8 +66,8 @@ const AdminDashboard = () => {
   const [assignedToFilter, setAssignedToFilter] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
-  const [searchInput, setSearchInput] = useState(""); // what the user is actively typing
-  const [clientNameFilter, setClientNameFilter] = useState(""); // debounced value actually sent to the API
+  const [searchInput, setSearchInput] = useState(""); 
+  const [clientNameFilter, setClientNameFilter] = useState(""); 
 
   // Wait 400ms after typing stops before updating the debounced value.
   // If the user types again before that timer fires, the cleanup function
@@ -126,7 +124,7 @@ const AdminDashboard = () => {
     <div className="p-2">
       {/* Pill filter bar */}
       <div className="flex flex-wrap gap-2 mb-6">
-        <div className="relative flex items-center gap-2 pl-4 pr-3 py-2 rounded-full border border-gray-200 bg-white text-sm text-gray-700">
+        <div className="relative flex items-center gap-2 pl-4 pr-3 py-2 rounded-full border border-gray-400 bg-white text-sm text-gray-700">
           <Search className="size-4 text-gray-400" />
           <input
             type="text"
@@ -217,12 +215,12 @@ const AdminDashboard = () => {
 
                 {/* Title + address */}
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-black capitalize truncate">
+                  <p className="font-serif text-xl text-black capitalize truncate">
                     {job.clientName}
                   </p>
-                  <p className="text-sm text-gray-500 truncate">
+                  {/* <p className="text-sm text-gray-500 truncate">
                     {job.clientAddress}, {job.clientCity}
-                  </p>
+                  </p> */}
                 </div>
 
                 {/* Location / Status / Assigned to */}

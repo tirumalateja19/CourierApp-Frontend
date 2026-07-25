@@ -80,10 +80,10 @@ const CreateJob = () => {
       required: true,
     },
     {
-      label: "Client City",
+      label: "Client Area",
       name: "clientCity",
       type: "text",
-      placeholder: "Enter city",
+      placeholder: "Enter Area",
       icon: Building2,
       required: true,
     },

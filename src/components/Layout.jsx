@@ -8,6 +8,7 @@ import {
   KeyRound,
   LogOut,
   History,
+  Menu,
 } from "lucide-react";
 import { useAuth } from "../context/useAuth";
 
@@ -16,9 +17,8 @@ const ADMIN_LINKS = [
   { to: "/admin/jobs/create-job", label: "Create Job", icon: PlusCircle },
   { to: "/admin/partners", label: "Partners", icon: Users },
   { to: "/admin/jobs/create-partner", label: "Create Partner", icon: UserPlus },
-  {to:"/admin/audit-logs",label:"Audit Logs",icon:History}
+  { to: "/admin/audit-logs", label: "Audit Logs", icon: History },
 ];
-
 const PARTNER_LINKS = [
   { to: "/partner/dashboard", label: "My Jobs", icon: LayoutDashboard },
 ];
@@ -26,93 +26,140 @@ const PARTNER_LINKS = [
 const Layout = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const links = user?.role === "admin" ? ADMIN_LINKS : PARTNER_LINKS;
 
-  const currentLink = links.find((link) =>
-    location.pathname.startsWith(link.to),
-  );
-  const pageTitle = currentLink?.label || "PickItUp";
+  const pageTitle =
+    links.find((l) => location.pathname.startsWith(l.to))?.label || "PickItUp";
+
+  const closeMobile = () => {
+    if (window.innerWidth < 1024) setSidebarOpen(false);
+  };
 
   return (
-    <div className="min-h-screen flex bg-white">
+    <div className="min-h-screen bg-white lg:flex">
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 z-40 bg-black/40 lg:hidden"
+        />
+      )}
+
       <aside
-        className={`bg-gray-50 border-r border-gray-200 flex flex-col justify-between transition-all ${
-          sidebarOpen ? "w-56" : "w-16"
-        }`}
+        className={`fixed inset-y-0 left-0 z-50 flex flex-col justify-between border-r border-gray-200 bg-gray-50 transition-all duration-300 ${
+          sidebarOpen ? "translate-x-0 w-64" : "-translate-x-full"
+        } lg:static lg:translate-x-0 ${sidebarOpen ? "lg:w-56" : "lg:w-16"}`}
       >
         <div>
-          <div className="flex items-center gap-2 px-4 py-5">
-            <button
-              onClick={() => setSidebarOpen((prev) => !prev)}
-              className="p-1 rounded-lg hover:bg-gray-100"
-              aria-label="Toggle sidebar"
-            >
-              <LayoutDashboard className="size-5" />
-            </button>
+          {/* Sidebar Header with Toggle */}
+          <div
+            className={`flex items-center py-4 ${
+              sidebarOpen ? "justify-between px-4" : "justify-center"
+            }`}
+          >
             {sidebarOpen && (
-              <span className="font-semibold text-black">PickItUp</span>
+              <span className="font-semibold text-black whitespace-nowrap">
+                PickItUp
+              </span>
             )}
+            <button
+              onClick={() => setSidebarOpen((p) => !p)}
+              className="rounded-lg p-2 hover:bg-gray-200 shrink-0"
+            >
+              <Menu className="size-5 text-gray-700" />
+            </button>
           </div>
 
-          <nav className="flex flex-col gap-1 px-3">
+          {/* Navigation Links */}
+          <nav className="flex flex-col gap-1 px-3 mt-2">
             {links.map((link) => {
               const Icon = link.icon;
               return (
                 <NavLink
                   key={link.to}
                   to={link.to}
+                  onClick={closeMobile}
                   className={({ isActive }) =>
-                    `flex items-center gap-3 px-3 py-2 rounded-full text-sm font-medium transition ${
+                    `flex items-center gap-3 rounded-full py-2 transition ${
+                      sidebarOpen ? "px-3" : "justify-center"
+                    } ${
                       isActive
                         ? "bg-black text-white"
-                        : "text-gray-600 hover:bg-gray-100"
+                        : "text-gray-600 hover:bg-gray-200"
                     }`
                   }
+                  title={!sidebarOpen ? link.label : undefined} // Tooltip when collapsed
                 >
                   <Icon className="size-4 shrink-0" />
-                  {sidebarOpen && <span>{link.label}</span>}
+                  {sidebarOpen && (
+                    <span className="whitespace-nowrap text-sm font-medium">
+                      {link.label}
+                    </span>
+                  )}
                 </NavLink>
               );
             })}
           </nav>
         </div>
 
-        <div className="border-t border-gray-200 px-3 py-4 flex flex-col gap-1">
+        {/* Footer Actions */}
+        <div className="flex flex-col gap-1 border-t border-gray-200 px-3 py-4">
           {sidebarOpen && (
-            <div className="px-3 pb-2 text-sm text-gray-500 truncate capitalize">
-              {user?.userName}
+            <div className="truncate px-3 pb-2 text-sm capitalize text-gray-500">
+              {user?.userName || "User"}
             </div>
           )}
           <NavLink
             to="/auth/change-password"
+            onClick={closeMobile}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2 rounded-full text-sm font-medium transition ${
+              `flex items-center gap-3 rounded-full py-2 transition ${
+                sidebarOpen ? "px-3" : "justify-center"
+              } ${
                 isActive
                   ? "bg-black text-white"
-                  : "text-gray-600 hover:bg-gray-100"
+                  : "text-gray-600 hover:bg-gray-200"
               }`
             }
+            title={!sidebarOpen ? "Change Password" : undefined}
           >
             <KeyRound className="size-4 shrink-0" />
-            {sidebarOpen && <span>Change password</span>}
+            {sidebarOpen && (
+              <span className="whitespace-nowrap text-sm font-medium">
+                Change Password
+              </span>
+            )}
           </NavLink>
           <button
             onClick={logout}
-            className="flex items-center gap-3 px-3 py-2 rounded-full text-sm font-medium text-red-600 hover:bg-red-50 transition"
+            className={`flex items-center gap-3 rounded-full py-2 text-red-600 hover:bg-red-50 transition ${
+              sidebarOpen ? "px-3" : "justify-center"
+            }`}
+            title={!sidebarOpen ? "Log Out" : undefined}
           >
             <LogOut className="size-4 shrink-0" />
-            {sidebarOpen && <span>Log out</span>}
+            {sidebarOpen && (
+              <span className="whitespace-nowrap text-sm font-medium">
+                Log Out
+              </span>
+            )}
           </button>
         </div>
       </aside>
 
-      <div className="flex-1 flex flex-col">
-        <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+      {/* Main Content Area */}
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="flex items-center gap-3 border-b border-gray-200 bg-gray-50 px-4 py-4 lg:px-6">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="rounded-lg p-2 hover:bg-gray-200 lg:hidden"
+          >
+            <Menu size={20} />
+          </button>
           <h1 className="text-lg font-semibold text-black">{pageTitle}</h1>
-        </div>
-        <main className="flex-1 p-4">
+        </header>
+        <main className="flex-1 overflow-auto p-3 sm:p-4 lg:p-6 bg-white">
           <Outlet />
         </main>
       </div>

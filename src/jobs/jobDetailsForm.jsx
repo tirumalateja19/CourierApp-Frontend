@@ -7,8 +7,14 @@ const PACKING_OPTIONS = [
   { value: "packed_at_office", label: "Packed at Office" },
 ];
 
+const emptyPackage = () => ({
+  weight: "",
+  length: "",
+  breadth: "",
+  height: "",
+});
+
 const JobDetailsForm = ({ jobData, jobId, setJobData }) => {
-  // Receiver details group
   const [receiverName, setReceiverName] = useState(jobData.receiverName || "");
   const [receiverNumber, setReceiverNumber] = useState(
     jobData.receiverNumber || "",
@@ -22,25 +28,38 @@ const JobDetailsForm = ({ jobData, jobId, setJobData }) => {
   );
   const [savingReceiver, setSavingReceiver] = useState(false);
 
-  // Package info group
-  const [weight, setWeight] = useState(jobData.weight || "");
-  const [dimensionsLength, setDimensionsLength] = useState(
-    jobData.dimensionsLength || "",
-  );
-  const [dimensionsBreadth, setDimensionsBreadth] = useState(
-    jobData.dimensionsBreadth || "",
-  );
-  const [dimensionsHeight, setDimensionsHeight] = useState(
-    jobData.dimensionsHeight || "",
-  );
   const [packingStatus, setPackingStatus] = useState(
     jobData.packingStatus || "",
   );
   const [price, setPrice] = useState(jobData.price || "");
-  const [numberOfPackages, SetNumberOfPackages] = useState(
+  const [numberOfPackages, setNumberOfPackages] = useState(
     jobData.numberOfPackages || "",
   );
+
+  const [packages, setPackages] = useState(() => {
+    if (jobData.packages && jobData.packages.length > 0)
+      return jobData.packages;
+    const n = parseInt(jobData.numberOfPackages, 10) || 0;
+    return Array.from({ length: n }, emptyPackage);
+  });
+
   const [savingPackage, setSavingPackage] = useState(false);
+
+  const handleNumberOfPackagesChange = (value) => {
+    setNumberOfPackages(value);
+    const n = parseInt(value, 10) || 0;
+    setPackages((prev) => {
+      const next = [...prev];
+      while (next.length < n) next.push(emptyPackage());
+      return next.slice(0, n);
+    });
+  };
+
+  const updatePackageField = (index, field, value) => {
+    setPackages((prev) =>
+      prev.map((pkg, i) => (i === index ? { ...pkg, [field]: value } : pkg)),
+    );
+  };
 
   const handleSaveReceiver = async (e) => {
     e.preventDefault();
@@ -53,8 +72,6 @@ const JobDetailsForm = ({ jobData, jobId, setJobData }) => {
         receiverCity,
         receiverZipCode,
       });
-      // Merge the updated fields into the parent's jobData rather than
-      // replacing it wholesale — we only sent/received a subset of fields.
       setJobData((prev) => ({ ...prev, ...response.data.jobData }));
       toast.success("Receiver details saved");
     } catch (err) {
@@ -71,10 +88,7 @@ const JobDetailsForm = ({ jobData, jobId, setJobData }) => {
     setSavingPackage(true);
     try {
       const response = await api.patch(`/api/jobs/pickup/${jobId}/details`, {
-        weight,
-        dimensionsLength,
-        dimensionsBreadth,
-        dimensionsHeight,
+        packages,
         packingStatus,
         price,
         numberOfPackages,
@@ -94,7 +108,6 @@ const JobDetailsForm = ({ jobData, jobId, setJobData }) => {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Receiver Details */}
       <form onSubmit={handleSaveReceiver} className="flex flex-col gap-2">
         <h3 className="font-semibold text-black">Receiver Details</h3>
         <div className="flex gap-2">
@@ -145,17 +158,9 @@ const JobDetailsForm = ({ jobData, jobId, setJobData }) => {
         </button>
       </form>
 
-      {/* Package Info */}
-      <form onSubmit={handleSavePackage} className="flex flex-col gap-2">
+      <form onSubmit={handleSavePackage} className="flex flex-col gap-3">
         <h3 className="font-semibold text-black">Package Info</h3>
         <div className="flex gap-2">
-          <input
-            type="number"
-            placeholder="Weight (kg)"
-            value={weight}
-            onChange={(e) => setWeight(e.target.value)}
-            className={inputClass}
-          />
           <input
             type="number"
             placeholder="Price"
@@ -167,33 +172,56 @@ const JobDetailsForm = ({ jobData, jobId, setJobData }) => {
             type="number"
             placeholder="Number of Packages"
             value={numberOfPackages}
-            onChange={(e) => SetNumberOfPackages(e.target.value)}
+            min="0"
+            onChange={(e) => handleNumberOfPackagesChange(e.target.value)}
             className={inputClass}
           />
         </div>
-        <div className="flex gap-2">
-          <input
-            type="number"
-            placeholder="Length"
-            value={dimensionsLength}
-            onChange={(e) => setDimensionsLength(e.target.value)}
-            className={inputClass}
-          />
-          <input
-            type="number"
-            placeholder="Breadth"
-            value={dimensionsBreadth}
-            onChange={(e) => setDimensionsBreadth(e.target.value)}
-            className={inputClass}
-          />
-          <input
-            type="number"
-            placeholder="Height"
-            value={dimensionsHeight}
-            onChange={(e) => setDimensionsHeight(e.target.value)}
-            className={inputClass}
-          />
-        </div>
+
+        {packages.map((pkg, index) => (
+          <div key={index} className="border border-gray-200 rounded-lg p-3">
+            <p className="text-xs text-gray-500 mb-2">Package {index + 1}</p>
+            <div className="flex gap-2">
+              <input
+                type="number"
+                placeholder="Weight (kg)"
+                value={pkg.weight}
+                onChange={(e) =>
+                  updatePackageField(index, "weight", e.target.value)
+                }
+                className={inputClass}
+              />
+              <input
+                type="number"
+                placeholder="Length"
+                value={pkg.length}
+                onChange={(e) =>
+                  updatePackageField(index, "length", e.target.value)
+                }
+                className={inputClass}
+              />
+              <input
+                type="number"
+                placeholder="Breadth"
+                value={pkg.breadth}
+                onChange={(e) =>
+                  updatePackageField(index, "breadth", e.target.value)
+                }
+                className={inputClass}
+              />
+              <input
+                type="number"
+                placeholder="Height"
+                value={pkg.height}
+                onChange={(e) =>
+                  updatePackageField(index, "height", e.target.value)
+                }
+                className={inputClass}
+              />
+            </div>
+          </div>
+        ))}
+
         <select
           value={packingStatus}
           onChange={(e) => setPackingStatus(e.target.value)}

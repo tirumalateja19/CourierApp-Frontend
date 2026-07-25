@@ -38,10 +38,12 @@ const formatTimestamp = (isoString) => {
   return `${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} · ${time}`;
 };
 
-// actorId missing means a system-triggered event (e.g. background PDF job),
-// not a human actor — show "System" rather than a blank/undefined name.
+// actorId missing means a system-triggered event (e.g. background PDF job).
+// If a human actor exists, prefer the real name the backend now provides;
+// fall back to role-only for any older log entries that predate that field.
 const formatActor = (log) => {
   if (!log.actorId || log.actorRole === "system") return "System";
+  if (log.actorName) return log.actorName;
   return log.actorRole
     ? log.actorRole.charAt(0).toUpperCase() + log.actorRole.slice(1)
     : "Unknown";
