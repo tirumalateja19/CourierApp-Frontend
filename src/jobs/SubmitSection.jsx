@@ -5,12 +5,10 @@ import api from "../api/axios";
 const SubmitSection = ({ jobData, jobId, setJobData }) => {
   const [submitting, setSubmitting] = useState(false);
   const [deferring, setDeferring] = useState(false);
+  const [regenerating, setRegenerating] = useState(false);
   const [checkingInvoice, setCheckingInvoice] = useState(false);
   const [invoiceUrl, setInvoiceUrl] = useState(null);
 
-  // Both Submit and Defer only return { message } — no updated job data.
-  // Refetch afterward so local state (status, invoiceStatus) reflects
-  // what actually happened on the backend.
   const refetchJob = async () => {
     const response = await api.get(`/api/partner/jobs/${jobId}`);
     setJobData(response.data.jobData);
@@ -46,6 +44,23 @@ const SubmitSection = ({ jobData, jobId, setJobData }) => {
     }
   };
 
+  const handleRegenerate = async () => {
+    setRegenerating(true);
+    try {
+      const endpoint =
+        jobData.invoiceStatus === "generated_at_pickup"
+          ? "submit"
+          : "defer-invoice";
+      const response = await api.post(`/api/jobs/pickup/${jobId}/${endpoint}`);
+      toast.success(response.data.message || "Regeneration triggered");
+      await refetchJob();
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Failed to regenerate");
+    } finally {
+      setRegenerating(false);
+    }
+  };
+
   const handleCheckInvoice = async () => {
     setCheckingInvoice(true);
     try {
@@ -66,11 +81,7 @@ const SubmitSection = ({ jobData, jobId, setJobData }) => {
   const handleDownloadInvoice = async () => {
     try {
       const response = await fetch(invoiceUrl);
-      // console.log("status:", response.status, "ok:", response.ok);
-
       const blob = await response.blob();
-      // console.log("blob size:", blob.size, "blob type:", blob.type);
-
       const blobUrl = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = blobUrl;
@@ -80,13 +91,10 @@ const SubmitSection = ({ jobData, jobId, setJobData }) => {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(blobUrl);
     } catch (err) {
-      console.error("Download failed:", err);
-      toast.error("Failed to download invoice");
+      toast.error("Failed to download invoice",err);
     }
   };
 
-  // Once a job has moved past "created"/pre-pickup, Submit/Defer no longer
-  // apply — this section shouldn't show at all if either action already happened.
   const alreadyFinalized =
     jobData.invoiceStatus === "generated_at_pickup" ||
     jobData.invoiceStatus === "pending_office_completion";
@@ -95,32 +103,41 @@ const SubmitSection = ({ jobData, jobId, setJobData }) => {
     return (
       <div className="border-t border-gray-200 pt-4">
         <h3 className="font-semibold text-black mb-2">Submission</h3>
-        <p className="text-sm text-gray-600 mb-2">
+        <p className="text-sm text-gray-600 mb-3">
           This job has already been{" "}
-          {jobData.status === "picked_up" ? "submitted" : "deferred"}.
+          {jobData.status === "PickedUp" ? "submitted" : "deferred"}.
         </p>
 
-        {/* Only Submit (not Defer) generates an invoice the partner can check */}
-        {jobData.invoiceStatus === "generated_at_pickup" && (
-          <div>
-            <button
-              onClick={handleCheckInvoice}
-              disabled={checkingInvoice}
-              className="text-sm px-4 py-2 rounded-lg bg-black text-white hover:bg-gray-800 transition disabled:opacity-50"
-            >
-              {checkingInvoice ? "Checking..." : "Check Invoice"}
-            </button>
-
-            {invoiceUrl && (
+        <div className="flex flex-wrap items-center gap-3">
+          {jobData.invoiceStatus === "generated_at_pickup" && (
+            <>
               <button
-                onClick={handleDownloadInvoice}
-                className="ml-3 text-sm text-blue-600 underline"
+                onClick={handleCheckInvoice}
+                disabled={checkingInvoice}
+                className="text-sm px-4 py-2 rounded-lg bg-black text-white hover:bg-gray-800 transition disabled:opacity-50"
               >
-                Download Invoice
+                {checkingInvoice ? "Checking..." : "Check invoice"}
               </button>
-            )}
-          </div>
-        )}
+
+              {invoiceUrl && (
+                <button
+                  onClick={handleDownloadInvoice}
+                  className="text-sm px-4 py-2 rounded-lg bg-gray-200 text-black hover:bg-gray-300 transition"
+                >
+                  Download invoice
+                </button>
+              )}
+            </>
+          )}
+
+          <button
+            onClick={handleRegenerate}
+            disabled={regenerating}
+            className="text-sm px-4 py-2 rounded-lg bg-gray-200 text-black hover:bg-gray-300 transition disabled:opacity-50"
+          >
+            {regenerating ? "Regenerating..." : "Regenerate"}
+          </button>
+        </div>
       </div>
     );
   }

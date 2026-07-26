@@ -123,7 +123,7 @@ const CreatePartner = () => {
                 required
                 placeholder="Enter password"
                 minLength={8}
-                pattern="(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                // pattern="(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
                 className="w-full rounded-lg border border-gray-300 py-3 pl-11 pr-11 outline-none transition focus:border-black"
               />
               <button

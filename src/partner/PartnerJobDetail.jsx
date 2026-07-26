@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { useParams,Link } from "react-router";
 import api from "../api/axios";
 import Items from "../jobs/Items";
 import JobDetailsForm from "../jobs/JobDetailsForm";
@@ -7,7 +7,7 @@ import PhotoUpload from "../jobs/PhotoUpload";
 import SubmitSection from "../jobs/SubmitSection";
 import JobTimeline from "../jobs/JobTimeline";
 import JobSummary from "../jobs/JobSummary";
-import { Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 
 const sectionClass = "border-t border-gray-200 pt-5";
 const sectionLabelClass = "text-base font-semibold text-black mb-3";
@@ -50,6 +50,13 @@ const PartnerJobDetail = () => {
 
   return (
     <div className="p-2">
+      <Link
+        to="/partner/dashboard"
+        className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-black transition mb-4"
+      >
+        <ArrowLeft className="size-4" />
+        Back to Dashboard
+      </Link>
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8">
         <div className="bg-white rounded-2xl border border-gray-200 p-6 flex flex-col gap-5">
           <div>
