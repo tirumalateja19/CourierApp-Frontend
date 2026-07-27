@@ -322,8 +322,8 @@ const AdminJobDetail = () => {
                 jobId={id}
                 setJobData={setJobData}
               />
-              <GenerateInvoice jobData={jobData} jobId={id} />
               <PdfDownloads jobId={id} />
+              <GenerateInvoice jobData={jobData} jobId={id} />
             </div>
           </div>
 

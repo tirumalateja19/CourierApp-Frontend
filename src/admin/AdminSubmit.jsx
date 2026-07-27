@@ -2,27 +2,25 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import api from "../api/axios";
 
-// Only relevant when admin has self-assigned a job — admin is acting as
-// the partner here, but unlike the partner flow, there's no Defer option.
 const AdminSubmit = ({ jobData, jobId, setJobData }) => {
   const [submitting, setSubmitting] = useState(false);
+  const [regenerating, setRegenerating] = useState(false);
 
-  // Only show if admin actually self-assigned, and nothing's been
-  // generated yet for this job.
-  if (jobData.assignedToRole !== "admin" || jobData.invoiceStatus) {
+  if (jobData.assignedToRole !== "admin") {
     return null;
   }
+
+  const refetchJob = async () => {
+    const response = await api.get(`/api/jobs/${jobId}`);
+    setJobData(response.data.jobData);
+  };
 
   const handleSubmit = async () => {
     setSubmitting(true);
     try {
       const response = await api.post(`/api/jobs/pickup/${jobId}/submit`);
       toast.success(response.data.message || "Job submitted");
-
-      // Same as partner's SubmitSection — submit only returns { message },
-      // so refetch to get the real invoiceStatus once it's set.
-      const refreshed = await api.get(`/api/jobs/${jobId}`);
-      setJobData(refreshed.data.jobData);
+      await refetchJob();
     } catch (err) {
       toast.error(err?.response?.data?.message || "Failed to submit job");
     } finally {
@@ -30,8 +28,39 @@ const AdminSubmit = ({ jobData, jobId, setJobData }) => {
     }
   };
 
+  const handleRegenerate = async () => {
+    setRegenerating(true);
+    try {
+      const response = await api.post(`/api/jobs/pickup/${jobId}/submit`);
+      toast.success(response.data.message || "Regeneration triggered");
+      await refetchJob();
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Failed to regenerate");
+    } finally {
+      setRegenerating(false);
+    }
+  };
+
+  if (jobData.invoiceStatus) {
+    return (
+      <div>
+        <h3 className="font-semibold text-black mb-2">Submit</h3>
+        <p className="text-sm text-gray-600 mb-3">
+          This job has already been submitted.
+        </p>
+        <button
+          onClick={handleRegenerate}
+          disabled={regenerating}
+          className="text-sm px-4 py-2 rounded-lg bg-gray-200 text-black hover:bg-gray-300 transition disabled:opacity-50"
+        >
+          {regenerating ? "Regenerating..." : "Regenerate both"}
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="border-t border-gray-200 pt-4">
+    <div>
       <h3 className="font-semibold text-black mb-2">Submit</h3>
       <p className="text-xs text-gray-500 mb-2">
         Requires weight and price to be saved first.

@@ -13,7 +13,7 @@ const GenerateInvoice = ({ jobData, jobId }) => {
   const handleGenerate = async () => {
     setGenerating(true);
     try {
-      const response = await api.post(`/api/jobs/${jobId}/invoice`);
+      const response = await api.post(`/api/jobs/${jobId}/invoice`, {});
       toast.success(response.data.message || "Invoice generation triggered");
       setHasGenerated(true);
     } catch (err) {
@@ -39,7 +39,7 @@ const GenerateInvoice = ({ jobData, jobId }) => {
         {generating
           ? "Working..."
           : hasGenerated
-            ? "Regenerate"
+            ? "Regenerate invoice"
             : "Generate invoice"}
       </button>
     </div>
