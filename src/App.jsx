@@ -1,18 +1,18 @@
 import { BrowserRouter, Routes, Route } from "react-router";
-import AuthGate from "./components/AuthGate";
-import Layout from "./components/Layout";
-import AdminDashboard from "./admin/AdminDashboard";
-import PartnerDashboard from "./partner/PartnerDashboard";
-import ChangePassword from "./auth/ChangePassword";
-import CreatePartner from "./admin/CreatePartner";
-import Partners from "./admin/Partners";
-import CreateJob from "./admin/CreateJob";
+import AuthGate from "./components/AuthGate.jsx";
+import Layout from "./components/Layout.jsx";
+import AdminDashboard from "./admin/AdminDashboard.jsx";
+import PartnerDashboard from "./partner/PartnerDashboard.jsx";
+import ChangePassword from "./auth/ChangePassword.jsx";
+import CreatePartner from "./admin/CreatePartner.jsx";
+import Partners from "./admin/Partners.jsx";
+import CreateJob from "./admin/CreateJob.jsx";
 import { Toaster } from "react-hot-toast";
-import PartnerJobDetail from "./partner/PartnerJobDetail";
-import AdminJobDetail from "./admin/AdminJobDetail";
-import Login from "./auth/Login";
-import AuditLogList from "./admin/Auditloglist";
-import AuditLogDetail from "./admin/AuditLogDetails";
+import PartnerJobDetail from "./partner/PartnerJobDetail.jsx";
+import AdminJobDetail from "./admin/AdminJobDetail.jsx";
+import Login from "./auth/Login.jsx";
+import AuditLogList from "./admin/Auditloglist.jsx";
+import AuditLogDetail from "./admin/AuditLogDetails.jsx";
 
 const App = () => {
   return (
@@ -35,9 +35,12 @@ const App = () => {
               path="/admin/jobs/create-partner"
               element={<CreatePartner />}
             ></Route>
-            <Route path="/admin/jobs/:id" element={<AdminJobDetail/>}></Route>
-            <Route path="/admin/audit-logs" element={<AuditLogList/>}></Route>
-            <Route path="/admin/audit-logs/:jobId" element={<AuditLogDetail/>}></Route>
+            <Route path="/admin/jobs/:id" element={<AdminJobDetail />}></Route>
+            <Route path="/admin/audit-logs" element={<AuditLogList />}></Route>
+            <Route
+              path="/admin/audit-logs/:jobId"
+              element={<AuditLogDetail />}
+            ></Route>
           </Route>
         </Route>
 
