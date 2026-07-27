@@ -11,7 +11,7 @@ import { Toaster } from "react-hot-toast";
 import PartnerJobDetail from "./partner/PartnerJobDetail.jsx";
 import AdminJobDetail from "./admin/AdminJobDetail.jsx";
 import Login from "./auth/Login.jsx";
-import AuditLogList from "./admin/Auditloglist.jsx";
+import AuditLogList from "./admin/AuditLogList.jsx";
 import AuditLogDetail from "./admin/AuditLogDetails.jsx";
 
 const App = () => {
