@@ -1,0 +1,14 @@
+# Allow all search engines
+User-agent: *
+
+# Pages you want search engines to crawl (like your marketing or home pages)
+Allow: /
+Allow: /about
+Allow: /contact
+
+# Private app routes you want to hide from Google
+Disallow: /admin/
+Disallow: /partner/
+Disallow: /jobs/
+Disallow: /login
+Disallow: /*?* # Blocks URLs with messy query parameters from being indexed
