@@ -36,8 +36,8 @@ const PartnerJobDetail = () => {
     fetchData();
   }, [id]);
 
-  {
-    loading && (
+  if (loading) {
+    return (
       <div className="flex justify-center py-10">
         <Loader2 size={32} className="animate-spin text-black" />
       </div>

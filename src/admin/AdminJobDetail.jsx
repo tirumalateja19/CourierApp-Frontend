@@ -165,13 +165,14 @@ const AdminJobDetail = () => {
     }
   };
 
-  {
-    loading && (
+  if (loading) {
+    return (
       <div className="flex justify-center py-10">
         <Loader2 size={32} className="animate-spin text-black" />
       </div>
     );
   }
+
   if (error) return <div className="p-2 text-red-600">{error}</div>;
   if (!jobData) return <div className="p-2">Job not found</div>;
 

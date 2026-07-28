@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { ChevronDown, Calendar, Lock } from "lucide-react";
+import { ChevronDown, Calendar, Lock, Loader2 } from "lucide-react";
 import api from "../api/axios";
 import toast from "react-hot-toast";
 
@@ -135,7 +135,11 @@ const PartnerDashboard = () => {
         </div>
       </div>
 
-      {loading && <p className="text-gray-500">Loading jobs...</p>}
+      {loading && (
+        <div className="flex justify-center py-10">
+          <Loader2 size={32} className="animate-spin text-black" />
+        </div>
+      )}
 
       {error && (
         <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg py-2 px-3 mb-4">
