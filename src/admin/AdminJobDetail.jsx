@@ -165,6 +165,16 @@ const AdminJobDetail = () => {
     }
   };
 
+  const refetchJob = async () => {
+    try {
+      const response = await api.get(`/api/jobs/${id}`);
+      setJobData(response.data.jobData);
+      setItems(response.data.items);
+    } catch (err) {
+      console.error("Failed to refresh job data", err);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center py-10">
@@ -324,7 +334,11 @@ const AdminJobDetail = () => {
                 setJobData={setJobData}
               />
               <PdfDownloads jobId={id} />
-              <GenerateInvoice jobData={jobData} jobId={id} />
+              <GenerateInvoice
+                jobData={jobData}
+                jobId={id}
+                onSuccess={refetchJob}
+              />
             </div>
           </div>
 

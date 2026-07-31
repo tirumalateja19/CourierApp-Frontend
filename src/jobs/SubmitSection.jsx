@@ -48,17 +48,24 @@ const SubmitSection = ({ jobData, jobId, setJobData }) => {
     setRegenerating(true);
     try {
       const endpoint =
-        jobData.invoiceStatus === "generated_at_pickup"
+        jobData.invoiceStatus === "generated_at_pickup" ||
+        jobData.invoiceStatus === "generated_by_admin"
           ? "submit"
           : "defer-invoice";
+
       const response = await api.post(`/api/jobs/pickup/${jobId}/${endpoint}`);
       toast.success(response.data.message || "Regeneration triggered");
       await refetchJob();
+
+      // Keep button disabled for 4 seconds to prevent accidental spam
+      setTimeout(() => {
+        setRegenerating(false);
+      }, 4000);
+      return;
     } catch (err) {
       toast.error(err?.response?.data?.message || "Failed to regenerate");
-    } finally {
-      setRegenerating(false);
     }
+    setRegenerating(false);
   };
 
   const handleCheckInvoice = async () => {
@@ -95,9 +102,16 @@ const SubmitSection = ({ jobData, jobId, setJobData }) => {
     }
   };
 
+  // 1. Updated to include "generated_by_admin"
   const alreadyFinalized =
     jobData.invoiceStatus === "generated_at_pickup" ||
-    jobData.invoiceStatus === "pending_office_completion";
+    jobData.invoiceStatus === "pending_office_completion" ||
+    jobData.invoiceStatus === "generated_by_admin";
+
+  // 2. Allow checking/downloading invoice if generated at pickup OR by admin
+  const hasInvoiceAvailable =
+    jobData.invoiceStatus === "generated_at_pickup" ||
+    jobData.invoiceStatus === "generated_by_admin";
 
   if (alreadyFinalized) {
     return (
@@ -105,16 +119,19 @@ const SubmitSection = ({ jobData, jobId, setJobData }) => {
         <h3 className="font-semibold text-black mb-2">Submission</h3>
         <p className="text-sm text-gray-600 mb-3">
           This job has already been{" "}
-          {jobData.status === "PickedUp" ? "submitted" : "deferred"}.
+          {jobData.invoiceStatus === "pending_office_completion"
+            ? "deferred to office"
+            : "submitted"}
+          .
         </p>
 
         <div className="flex flex-wrap items-center gap-3">
-          {jobData.invoiceStatus === "generated_at_pickup" && (
+          {hasInvoiceAvailable && (
             <>
               <button
                 onClick={handleCheckInvoice}
                 disabled={checkingInvoice}
-                className="text-sm px-4 py-2 rounded-lg bg-black text-white hover:bg-gray-800 transition disabled:opacity-50"
+                className="text-sm px-4 py-2 rounded-lg bg-black text-white hover:bg-gray-800 transition disabled:opacity-50 cursor-pointer"
               >
                 {checkingInvoice ? "Checking..." : "Check invoice"}
               </button>
@@ -122,7 +139,7 @@ const SubmitSection = ({ jobData, jobId, setJobData }) => {
               {invoiceUrl && (
                 <button
                   onClick={handleDownloadInvoice}
-                  className="text-sm px-4 py-2 rounded-lg bg-gray-200 text-black hover:bg-gray-300 transition"
+                  className="text-sm px-4 py-2 rounded-lg bg-gray-200 text-black hover:bg-gray-300 transition cursor-pointer"
                 >
                   Download invoice
                 </button>
@@ -133,7 +150,7 @@ const SubmitSection = ({ jobData, jobId, setJobData }) => {
           <button
             onClick={handleRegenerate}
             disabled={regenerating}
-            className="text-sm px-4 py-2 rounded-lg bg-gray-200 text-black hover:bg-gray-300 transition disabled:opacity-50"
+            className="text-sm px-4 py-2 rounded-lg bg-gray-200 text-black hover:bg-gray-300 transition disabled:opacity-50 cursor-pointer"
           >
             {regenerating ? "Regenerating..." : "Regenerate"}
           </button>
@@ -152,16 +169,16 @@ const SubmitSection = ({ jobData, jobId, setJobData }) => {
         <button
           onClick={handleSubmit}
           disabled={submitting || deferring}
-          className="text-sm px-4 py-2 rounded-lg bg-black text-white hover:bg-gray-800 transition disabled:opacity-50"
+          className="text-sm px-4 py-2 rounded-lg bg-black text-white hover:bg-gray-800 transition disabled:opacity-50 cursor-pointer"
         >
           {submitting ? "Submitting..." : "Submit (Invoice + POD)"}
         </button>
         <button
           onClick={handleDefer}
           disabled={submitting || deferring}
-          className="text-sm px-4 py-2 rounded-lg bg-gray-200 text-black hover:bg-gray-300 transition disabled:opacity-50"
+          className="text-sm px-4 py-2 rounded-lg bg-gray-200 text-black hover:bg-gray-300 transition disabled:opacity-50 cursor-pointer"
         >
-          {deferring ? "Deferring..." : "Defer Invoice (POD only)"}
+          {deferring ? "Deferring..." : "(POD only)"}
         </button>
       </div>
     </div>
