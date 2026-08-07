@@ -95,6 +95,9 @@ PickItUp digitizes the courier pickup workflow end to end:
 
 ## Architecture Notes
 
+<img width="994" height="1496" alt="image" src="https://github.com/user-attachments/assets/4238e1f5-3d57-4c12-a19a-83f37c3a7315" />
+
+
 - **Auth** is cookie-based (httpOnly, secure) — the frontend never touches the JWT directly. Session state is confirmed on every load via a `/me`-style request, so a refresh never logs you out unexpectedly.
 - **Route protection** is handled by a single `AuthGate` component with three modes: guest-only (login page), role-restricted (admin/partner dashboards), and shared-authenticated (e.g. change password) — driven entirely by props, not duplicated logic per route.
 - **Shared job components** (`Items`, `PhotoUpload`, `JobDetailsForm`, `SubmitSection`, `Shipment`, `JobTimeline`, `JobSummary`) live in one place and are reused across both the Admin and Partner job-detail pages, since the underlying actions (and API permissions) are largely identical for both roles.
