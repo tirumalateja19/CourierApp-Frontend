@@ -5,9 +5,7 @@ import api from "../api/axios";
 import JobDetailsForm from "../jobs/JobDetailsForm";
 import Items from "../jobs/Items";
 import PhotoUpload from "../jobs/PhotoUpload";
-import PdfDownloads from "./PdfDownloads";
 import AdminSubmit from "./AdminSubmit";
-import GenerateInvoice from "./GenerateInvoice";
 import Shipment from "../jobs/Shipment";
 import JobTimeline from "../jobs/JobTimeline";
 import JobSummary from "../jobs/JobSummary";
@@ -162,16 +160,6 @@ const AdminJobDetail = () => {
       toast.error(err?.response?.data?.message || "Failed to update status");
     } finally {
       setUpdatingStatus(false);
-    }
-  };
-
-  const refetchJob = async () => {
-    try {
-      const response = await api.get(`/api/jobs/${id}`);
-      setJobData(response.data.jobData);
-      setItems(response.data.items);
-    } catch (err) {
-      console.error("Failed to refresh job data", err);
     }
   };
 
@@ -332,12 +320,6 @@ const AdminJobDetail = () => {
                 jobData={jobData}
                 jobId={id}
                 setJobData={setJobData}
-              />
-              <PdfDownloads jobId={id} />
-              <GenerateInvoice
-                jobData={jobData}
-                jobId={id}
-                onSuccess={refetchJob}
               />
             </div>
           </div>

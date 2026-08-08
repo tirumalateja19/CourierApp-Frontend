@@ -4,10 +4,8 @@ import api from "../api/axios";
 
 const SubmitSection = ({ jobData, jobId, setJobData }) => {
   const [submitting, setSubmitting] = useState(false);
-  const [deferring, setDeferring] = useState(false);
-  const [regenerating, setRegenerating] = useState(false);
-  const [checkingInvoice, setCheckingInvoice] = useState(false);
-  const [invoiceUrl, setInvoiceUrl] = useState(null);
+  const [checkingPodSlip, setCheckingPodSlip] = useState(false);
+  const [podSlipUrl, setPodSlipUrl] = useState(null);
 
   const refetchJob = async () => {
     const response = await api.get(`/api/partner/jobs/${jobId}`);
@@ -18,146 +16,52 @@ const SubmitSection = ({ jobData, jobId, setJobData }) => {
     setSubmitting(true);
     try {
       const response = await api.post(`/api/jobs/pickup/${jobId}/submit`);
-      toast.success(response.data.message || "Job submitted");
-      await refetchJob();
-    } catch (err) {
-      toast.error(err?.response?.data?.message || "Failed to submit job");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleDefer = async () => {
-    setDeferring(true);
-    try {
-      const response = await api.post(
-        `/api/jobs/pickup/${jobId}/defer-invoice`,
-      );
-      toast.success(
-        response.data.message || "Invoice deferred, POD slip generating",
-      );
-      await refetchJob();
-    } catch (err) {
-      toast.error(err?.response?.data?.message || "Failed to defer invoice");
-    } finally {
-      setDeferring(false);
-    }
-  };
-
-  const handleRegenerate = async () => {
-    setRegenerating(true);
-    try {
-      const endpoint =
-        jobData.invoiceStatus === "generated_at_pickup" ||
-        jobData.invoiceStatus === "generated_by_admin"
-          ? "submit"
-          : "defer-invoice";
-
-      const response = await api.post(`/api/jobs/pickup/${jobId}/${endpoint}`);
-      toast.success(response.data.message || "Regeneration triggered");
+      toast.success(response.data.message || "Pod slip generating");
       await refetchJob();
 
-      // Keep button disabled for 4 seconds to prevent accidental spam
       setTimeout(() => {
-        setRegenerating(false);
+        setSubmitting(false);
       }, 4000);
       return;
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Failed to regenerate");
+      toast.error(err?.response?.data?.message || "Failed to submit job");
     }
-    setRegenerating(false);
+    setSubmitting(false);
   };
 
-  const handleCheckInvoice = async () => {
-    setCheckingInvoice(true);
+  const handleCheckPodSlip = async () => {
+    setCheckingPodSlip(true);
     try {
-      const response = await api.get(`/api/jobs/${jobId}/invoice`);
-      setInvoiceUrl(response.data.invoice.pdfUrl);
-      toast.success("Invoice is ready");
+      const response = await api.get(`/api/jobs/${jobId}/pod-slip`);
+      setPodSlipUrl(response.data.podSlip.pdfUrl);
+      toast.success("Pod slip is ready");
     } catch (err) {
       if (err?.response?.status === 404) {
         toast.error("Not generated yet — check back shortly");
       } else {
-        toast.error(err?.response?.data?.message || "Failed to check invoice");
+        toast.error(err?.response?.data?.message || "Failed to check pod slip");
       }
     } finally {
-      setCheckingInvoice(false);
+      setCheckingPodSlip(false);
     }
   };
 
-  const handleDownloadInvoice = async () => {
+  const handleDownloadPodSlip = async () => {
     try {
-      const response = await fetch(invoiceUrl);
+      const response = await fetch(podSlipUrl);
       const blob = await response.blob();
       const blobUrl = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = blobUrl;
-      link.download = "invoice.pdf";
+      link.download = "pod-slip.pdf";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(blobUrl);
     } catch (err) {
-      toast.error("Failed to download invoice",err);
+      toast.error("Failed to download pod slip", err);
     }
   };
-
-  // 1. Updated to include "generated_by_admin"
-  const alreadyFinalized =
-    jobData.invoiceStatus === "generated_at_pickup" ||
-    jobData.invoiceStatus === "pending_office_completion" ||
-    jobData.invoiceStatus === "generated_by_admin";
-
-  // 2. Allow checking/downloading invoice if generated at pickup OR by admin
-  const hasInvoiceAvailable =
-    jobData.invoiceStatus === "generated_at_pickup" ||
-    jobData.invoiceStatus === "generated_by_admin";
-
-  if (alreadyFinalized) {
-    return (
-      <div className="border-t border-gray-200 pt-4">
-        <h3 className="font-semibold text-black mb-2">Submission</h3>
-        <p className="text-sm text-gray-600 mb-3">
-          This job has already been{" "}
-          {jobData.invoiceStatus === "pending_office_completion"
-            ? "deferred to office"
-            : "submitted"}
-          .
-        </p>
-
-        <div className="flex flex-wrap items-center gap-3">
-          {hasInvoiceAvailable && (
-            <>
-              <button
-                onClick={handleCheckInvoice}
-                disabled={checkingInvoice}
-                className="text-sm px-4 py-2 rounded-lg bg-black text-white hover:bg-gray-800 transition disabled:opacity-50 cursor-pointer"
-              >
-                {checkingInvoice ? "Checking..." : "Check invoice"}
-              </button>
-
-              {invoiceUrl && (
-                <button
-                  onClick={handleDownloadInvoice}
-                  className="text-sm px-4 py-2 rounded-lg bg-gray-200 text-black hover:bg-gray-300 transition cursor-pointer"
-                >
-                  Download invoice
-                </button>
-              )}
-            </>
-          )}
-
-          <button
-            onClick={handleRegenerate}
-            disabled={regenerating}
-            className="text-sm px-4 py-2 rounded-lg bg-gray-200 text-black hover:bg-gray-300 transition disabled:opacity-50 cursor-pointer"
-          >
-            {regenerating ? "Regenerating..." : "Regenerate"}
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="border-t border-gray-200 pt-4">
@@ -165,21 +69,40 @@ const SubmitSection = ({ jobData, jobId, setJobData }) => {
       <p className="text-xs text-gray-500 mb-2">
         Requires weight and price to be saved first.
       </p>
-      <div className="flex gap-3">
+      {jobData.podSlipGenerated && (
+        <p className="text-xs text-gray-500 mb-2">
+          Last generated by{" "}
+          <span className="font-medium text-gray-700">
+            {jobData.podGeneratedBy}
+          </span>
+        </p>
+      )}
+
+      <div className="flex flex-wrap items-center gap-3">
         <button
           onClick={handleSubmit}
-          disabled={submitting || deferring}
+          disabled={submitting}
           className="text-sm px-4 py-2 rounded-lg bg-black text-white hover:bg-gray-800 transition disabled:opacity-50 cursor-pointer"
         >
-          {submitting ? "Submitting..." : "Submit (Invoice + POD)"}
+          {submitting ? "Generating..." : "Generate pod slip"}
         </button>
+
         <button
-          onClick={handleDefer}
-          disabled={submitting || deferring}
+          onClick={handleCheckPodSlip}
+          disabled={checkingPodSlip}
           className="text-sm px-4 py-2 rounded-lg bg-gray-200 text-black hover:bg-gray-300 transition disabled:opacity-50 cursor-pointer"
         >
-          {deferring ? "Deferring..." : "(POD only)"}
+          {checkingPodSlip ? "Checking..." : "Check pod slip"}
         </button>
+
+        {podSlipUrl && (
+          <button
+            onClick={handleDownloadPodSlip}
+            className="text-sm px-4 py-2 rounded-lg bg-gray-200 text-black hover:bg-gray-300 transition cursor-pointer"
+          >
+            Download pod slip
+          </button>
+        )}
       </div>
     </div>
   );

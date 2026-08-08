@@ -7,7 +7,7 @@ const Shipment = ({ jobData, jobId, setJobData }) => {
   const [networkName, setNetworkName] = useState("");
   const [recording, setRecording] = useState(false);
 
-  if (!jobData.invoiceStatus) {
+  if (!jobData.podSlipGenerated) {
     return null;
   }
 
@@ -33,7 +33,7 @@ const Shipment = ({ jobData, jobId, setJobData }) => {
     }
   };
 
-  if (jobData.status === "dispatched") {
+  if (jobData.status === "Dispatched") {
     return <p className="text-sm text-gray-600">Job has been dispatched.</p>;
   }
 
