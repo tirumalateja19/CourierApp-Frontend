@@ -62,8 +62,8 @@ const AuditLogList = () => {
         if (toDate) params.toDate = toDate;
         if (clientNameFilter) params.clientName = clientNameFilter;
 
-        const response = await api.get("/api/jobs", { params });
-        setJobs(response.data.totalJobs);
+        const response = await api.get("/api/jobs/auditedJobs", { params });
+        setJobs(response.data.jobs);
       } catch (err) {
         setError(err?.response?.data?.message || "Failed to load jobs");
       } finally {

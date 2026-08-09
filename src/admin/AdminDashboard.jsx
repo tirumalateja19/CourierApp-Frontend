@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
-import { ChevronDown, Calendar, Lock, Search, Loader2 } from "lucide-react";
+import {
+  ChevronDown,
+  Calendar,
+  Lock,
+  Search,
+  Loader2,
+  Archive,
+} from "lucide-react";
+import toast from "react-hot-toast";
 import api from "../api/axios";
 
 const STATUS_OPTIONS = [
@@ -45,7 +53,10 @@ const STATUS_DOT_COLOR = {
   PickedUp: "bg-purple-500",
   AtOffice: "bg-indigo-500",
   Dispatched: "bg-green-500",
+  Cancelled: "bg-red-500",
 };
+
+const ARCHIVABLE_STATUSES = ["Dispatched", "Cancelled"];
 
 const PillSelect = ({ children, ...props }) => (
   <div className="relative">
@@ -70,6 +81,11 @@ const AdminDashboard = () => {
   const [toDate, setToDate] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [clientNameFilter, setClientNameFilter] = useState("");
+
+  // confirmArchiveId holds the job id currently showing its confirm popover.
+  // archivingId holds the job id whose archive request is in flight.
+  const [confirmArchiveId, setConfirmArchiveId] = useState(null);
+  const [archivingId, setArchivingId] = useState(null);
 
   // Wait 400ms after typing stops before updating the debounced value.
   // If the user types again before that timer fires, the cleanup function
@@ -121,6 +137,22 @@ const AdminDashboard = () => {
     };
     fetchJobs();
   }, [statusFilter, assignedToFilter, fromDate, toDate, clientNameFilter]);
+
+  const handleArchive = async (jobId) => {
+    setArchivingId(jobId);
+    try {
+      const response = await api.patch(`/api/jobs/${jobId}/archive`);
+      toast.success(response.data.message || "Job archived");
+      // Remove locally so it disappears from the main list immediately,
+      // regardless of whether the backend query itself excludes archived jobs.
+      setJobs((prev) => prev.filter((job) => job._id !== jobId));
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Failed to archive job");
+    } finally {
+      setArchivingId(null);
+      setConfirmArchiveId(null);
+    }
+  };
 
   return (
     <div className="p-2">
@@ -201,6 +233,8 @@ const AdminDashboard = () => {
           {jobs.map((job) => {
             const { day, month } = formatDateBadge(job.scheduledTime);
             const dotColor = STATUS_DOT_COLOR[job.status] || "bg-gray-400";
+            const canArchive =
+              ARCHIVABLE_STATUSES.includes(job.status) && !job.isArchived;
 
             return (
               <div
@@ -245,6 +279,56 @@ const AdminDashboard = () => {
                   <span className="text-black truncate">
                     {job.assignedTo || "Unassigned"}
                   </span>
+                </div>
+
+                <div className="relative shrink-0">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setConfirmArchiveId(
+                        confirmArchiveId === job._id ? null : job._id,
+                      )
+                    }
+                    disabled={!canArchive || archivingId === job._id}
+                    title={
+                      job.isArchived
+                        ? "Already archived"
+                        : canArchive
+                          ? "Archive job"
+                          : "Only dispatched or cancelled jobs can be archived"
+                    }
+                    className="flex items-center justify-center size-9 rounded-full border border-gray-300 text-gray-500 hover:bg-gray-50 hover:text-black transition disabled:opacity-30 disabled:hover:bg-transparent disabled:cursor-not-allowed"
+                  >
+                    {archivingId === job._id ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : (
+                      <Archive className="size-4" />
+                    )}
+                  </button>
+
+                  {confirmArchiveId === job._id && canArchive && (
+                    <div className="absolute right-0 top-11 z-10 w-56 bg-white border border-gray-200 rounded-xl shadow-lg p-3">
+                      <p className="text-sm text-black mb-3">
+                        Archive this job?
+                      </p>
+                      <div className="flex justify-end gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setConfirmArchiveId(null)}
+                          className="text-xs px-3 py-1.5 rounded-lg text-gray-600 hover:bg-gray-100 transition"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleArchive(job._id)}
+                          className="text-xs px-3 py-1.5 rounded-lg bg-black text-white hover:bg-gray-800 transition"
+                        >
+                          Yes, archive
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <Link
