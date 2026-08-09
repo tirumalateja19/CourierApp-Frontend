@@ -9,6 +9,8 @@ import {
   LogOut,
   History,
   Menu,
+  Archive,
+  CircleUserRound,
 } from "lucide-react";
 import { useAuth } from "../context/useAuth";
 
@@ -17,6 +19,7 @@ const ADMIN_LINKS = [
   { to: "/admin/jobs/create-job", label: "Create Job", icon: PlusCircle },
   { to: "/admin/partners", label: "Partners", icon: Users },
   { to: "/admin/jobs/create-partner", label: "Create Partner", icon: UserPlus },
+  { to: "/admin/jobs/archived", label: "Archive", icon: Archive },
   { to: "/admin/audit-logs", label: "Audit Logs", icon: History },
 ];
 const PARTNER_LINKS = [
@@ -26,7 +29,9 @@ const PARTNER_LINKS = [
 const Layout = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(
+    typeof window !== "undefined" && window.innerWidth >= 1024,
+  );
   const links = user?.role === "admin" ? ADMIN_LINKS : PARTNER_LINKS;
 
   const pageTitle =
@@ -106,7 +111,8 @@ const Layout = () => {
         {/* Footer Actions */}
         <div className="flex flex-col gap-1 border-t border-gray-200 px-3 py-4">
           {sidebarOpen && (
-            <div className="truncate px-3 pb-2 text-sm capitalize text-gray-500">
+            <div className="flex items-center gap-2 truncate px-3 pb-2 text-sm capitalize text-gray-500">
+              <CircleUserRound className="size-5 shrink-0" />
               {user?.userName || "User"}
             </div>
           )}
