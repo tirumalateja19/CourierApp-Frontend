@@ -1,13 +1,14 @@
 import { Navigate, Outlet } from "react-router";
 import { useAuth } from "../context/useAuth";
+import { Loader2 } from "lucide-react";
 
 const AuthGate = ({ requiredRole, guestOnly = false }) => {
   const { user, loading } = useAuth();
 
   if (loading) {
     return (
-      <div className="h-screen w-screen flex items-center justify-center">
-        <p className="text-lg font-medium">Loading...</p>
+      <div className="h-screen w-screen flex items-center justify-center py-10">
+        <Loader2 size={42} className="animate-spin text-black" />
       </div>
     );
   }

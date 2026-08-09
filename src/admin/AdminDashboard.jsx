@@ -5,13 +5,15 @@ import api from "../api/axios";
 
 const STATUS_OPTIONS = [
   { value: "", label: "All" },
+  { value: "Open", label: "Open" },
+  { value: "Closed", label: "Closed" },
   { value: "Created", label: "Created" },
   { value: "Assigned", label: "Assigned" },
   { value: "PickedUp", label: "Picked Up" },
   { value: "AtOffice", label: "At Office" },
   { value: "Dispatched", label: "Dispatched" },
+  { value: "Cancelled", label: "Cancelled" },
 ];
-
 
 const MONTHS = [
   "Jan",
@@ -66,8 +68,8 @@ const AdminDashboard = () => {
   const [assignedToFilter, setAssignedToFilter] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
-  const [searchInput, setSearchInput] = useState(""); 
-  const [clientNameFilter, setClientNameFilter] = useState(""); 
+  const [searchInput, setSearchInput] = useState("");
+  const [clientNameFilter, setClientNameFilter] = useState("");
 
   // Wait 400ms after typing stops before updating the debounced value.
   // If the user types again before that timer fires, the cleanup function

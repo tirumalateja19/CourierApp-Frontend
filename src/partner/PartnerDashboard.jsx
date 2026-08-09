@@ -6,11 +6,9 @@ import toast from "react-hot-toast";
 
 const STATUS_OPTIONS = [
   { value: "", label: "All" },
-  { value: "Created", label: "Created" },
-  { value: "Assigned", label: "Assigned" },
-  { value: "PickedUp", label: "Picked Up" },
+  { value: "Open", label: "Open" },
+  { value: "Closed", label: "Closed" },
   { value: "AtOffice", label: "At Office" },
-  { value: "Dispatched", label: "Dispatched" },
 ];
 
 const MONTHS = [
