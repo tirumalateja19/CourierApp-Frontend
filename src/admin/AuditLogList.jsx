@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { ChevronDown, Calendar, Search } from "lucide-react";
+import { ChevronDown, Calendar, Search, RefreshCcw } from "lucide-react";
 import api from "../api/axios";
 
 const PillSelect = ({ children, ...props }) => (
@@ -123,7 +123,11 @@ const AuditLogList = () => {
         </div>
       </div>
 
-      {loading && <p className="text-gray-500">Loading jobs...</p>}
+      {loading && (
+        <div className="flex justify-center py-10">
+          <RefreshCcw size={32} className="animate-spin text-black" />
+        </div>
+      )}
 
       {error && (
         <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg py-2 px-3 mb-4">

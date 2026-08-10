@@ -10,6 +10,7 @@ import Shipment from "../jobs/Shipment";
 import JobTimeline from "../jobs/JobTimeline";
 import JobSummary from "../jobs/JobSummary";
 import { ArrowLeft, Loader2 } from "lucide-react";
+import CancelJob from "../jobs/CancelJob";
 
 const LOCK_REASONS = [
   { value: "review", label: "Review" },
@@ -336,6 +337,9 @@ const AdminJobDetail = () => {
             <JobTimeline status={jobData.status} />
           </div>
           <JobSummary jobData={jobData} />
+        </div>
+        <div className={sectionClass}>
+          <CancelJob jobData={jobData} jobId={id} setJobData={setJobData} />
         </div>
       </div>
     </div>
