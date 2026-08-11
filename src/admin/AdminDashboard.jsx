@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import {
   ChevronDown,
   Calendar,
@@ -76,11 +76,14 @@ const AdminDashboard = () => {
   const [error, setError] = useState(null);
 
   const [statusFilter, setStatusFilter] = useState("");
-  const [assignedToFilter, setAssignedToFilter] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [clientNameFilter, setClientNameFilter] = useState("");
+  const [searchParams] = useSearchParams();
+  const [assignedToFilter, setAssignedToFilter] = useState(
+    searchParams.get("assignedToId") || "",
+  );
 
   // confirmArchiveId holds the job id currently showing its confirm popover.
   // archivingId holds the job id whose archive request is in flight.
@@ -220,6 +223,10 @@ const AdminDashboard = () => {
         <div className="flex justify-center py-10">
           <Loader2 size={32} className="animate-spin text-black" />
         </div>
+      )}
+
+      {!loading && !error && jobs.length === 0 && (
+        <p className="text-gray-500">No jobs found.</p>
       )}
 
       {error && (

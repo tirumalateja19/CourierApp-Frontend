@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import api from "../api/axios";
+import { useNavigate } from "react-router";
 
 const initialForm = {
   clientName: "",
@@ -24,6 +25,7 @@ const CreateJob = () => {
   const [formData, setFormData] = useState(initialForm);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const navigate=useNavigate();
 
   const handleChange = (e) => {
     setFormData((prev) => ({
@@ -46,7 +48,7 @@ const CreateJob = () => {
     try {
       const { data } = await api.post("/api/jobs/new-job", formData);
       toast.success(data?.message || "Job created");
-      resetForm();
+      navigate(`/admin/jobs/${data.jobData._id}`);
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to create job");
     } finally {

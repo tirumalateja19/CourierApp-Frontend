@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import toast from "react-hot-toast";
 import {
   Users,
@@ -9,15 +9,19 @@ import {
   Plus,
   Power,
   Loader2,
+  Briefcase,
 } from "lucide-react";
 import api from "../api/axios";
 
 const AdminPartners = () => {
+  const navigate = useNavigate();
+
   const [partners, setPartners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [togglingId, setTogglingId] = useState(null);
   const [search, setSearch] = useState("");
+  const [confirmDeactivateId, setConfirmDeactivateId] = useState(null);
 
   useEffect(() => {
     const fetchPartners = async () => {
@@ -45,20 +49,25 @@ const AdminPartners = () => {
     return partners.filter(
       (partner) =>
         partner.userName.toLowerCase().includes(value) ||
-        partner.contactNumber.toLowerCase().includes(value)
+        partner.contactNumber.toLowerCase().includes(value),
     );
   }, [partners, search]);
 
   const handleToggle = async (partner) => {
+    // Deactivating needs confirmation; activating doesn't.
+    if (!partner.isDeactivated && confirmDeactivateId !== partner._id) {
+      setConfirmDeactivateId(partner._id);
+      return;
+    }
+
     setTogglingId(partner._id);
+    setConfirmDeactivateId(null);
 
     try {
-      const action = partner.isDeactivated
-        ? "activate"
-        : "deactivate";
+      const action = partner.isDeactivated ? "activate" : "deactivate";
 
       const { data } = await api.patch(
-        `/api/admin/partners/${partner._id}/${action}`
+        `/api/admin/partners/${partner._id}/${action}`,
       );
 
       setPartners((prev) =>
@@ -68,19 +77,13 @@ const AdminPartners = () => {
                 ...p,
                 isDeactivated: !p.isDeactivated,
               }
-            : p
-        )
+            : p,
+        ),
       );
 
-      toast.success(
-        data.message ||
-          `Partner ${action}d successfully`
-      );
+      toast.success(data.message || `Partner ${action}d successfully`);
     } catch (err) {
-      toast.error(
-        err?.response?.data?.message ||
-          "Action failed"
-      );
+      toast.error(err?.response?.data?.message || "Action failed");
     } finally {
       setTogglingId(null);
     }
@@ -88,17 +91,13 @@ const AdminPartners = () => {
 
   return (
     <div className="p-2">
-
       {/* Header */}
 
       <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-
         <div className="flex items-center gap-3">
           <Users size={24} className="text-black" />
 
-          <h1 className="text-xl font-bold text-black">
-            Partners
-          </h1>
+          <h1 className="text-xl font-bold text-black">Partners</h1>
         </div>
 
         <Link
@@ -131,10 +130,7 @@ const AdminPartners = () => {
 
       {loading && (
         <div className="flex justify-center py-10">
-          <Loader2
-            size={32}
-            className="animate-spin text-black"
-          />
+          <Loader2 size={32} className="animate-spin text-black" />
         </div>
       )}
 
@@ -148,66 +144,76 @@ const AdminPartners = () => {
 
       {/* Empty */}
 
-      {!loading &&
-        !error &&
-        filteredPartners.length === 0 && (
-          <p className="text-gray-500">
-            No partners found.
-          </p>
-        )}
+      {!loading && !error && filteredPartners.length === 0 && (
+        <p className="text-gray-500">No partners found.</p>
+      )}
 
       {/* List */}
 
-      {!loading &&
-        !error &&
-        filteredPartners.length > 0 && (
-          <div className="grid gap-3">
-            {filteredPartners.map((partner) => (
-              <div
-                key={partner._id}
-                className="flex items-center justify-between rounded-xl border border-gray-200 bg-white p-4 transition hover:shadow-md"
-              >
-                <div>
+      {!loading && !error && filteredPartners.length > 0 && (
+        <div className="grid gap-3">
+          {filteredPartners.map((partner) => (
+            <div
+              key={partner._id}
+              className="flex items-center justify-between rounded-xl border border-gray-200 bg-white p-4 transition hover:shadow-md"
+            >
+              <div>
+                <div className="flex items-center gap-2">
+                  <User size={17} className="text-gray-700" />
 
-                  <div className="flex items-center gap-2">
-                    <User
-                      size={17}
-                      className="text-gray-700"
-                    />
-
-                    <p className="font-semibold capitalize text-black">
-                      {partner.userName}
-                    </p>
-                  </div>
-
-                  <div className="mt-1 flex items-center gap-2 text-sm text-gray-600">
-                    <Phone size={15} />
-                    <span>{partner.contactNumber}</span>
-                  </div>
-
+                  <p className="font-semibold capitalize text-black">
+                    {partner.userName}
+                  </p>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="mt-1 flex items-center gap-2 text-sm text-gray-600">
+                  <Phone size={15} />
+                  <span>{partner.contactNumber}</span>
+                </div>
+              </div>
 
-                  <span
-                    className={`rounded-full px-2 py-1 text-xs ${
-                      partner.isDeactivated
-                        ? "bg-red-100 text-red-700"
-                        : "bg-green-100 text-green-700"
-                    }`}
-                  >
-                    {partner.isDeactivated
-                      ? "Deactivated"
-                      : "Active"}
-                  </span>
+              <div className="flex items-center gap-3">
+                <span
+                  className={`rounded-full px-2 py-1 text-xs ${
+                    partner.isDeactivated
+                      ? "bg-red-100 text-red-700"
+                      : "bg-green-100 text-green-700"
+                  }`}
+                >
+                  {partner.isDeactivated ? "Deactivated" : "Active"}
+                </span>
 
+                <button
+                  onClick={() =>
+                    navigate(`/admin/dashboard?assignedToId=${partner._id}`)
+                  }
+                  className="flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-1.5 text-sm font-semibold text-black transition hover:bg-gray-50"
+                >
+                  <Briefcase size={16} />
+                  Jobs
+                </button>
+
+                {confirmDeactivateId === partner._id ? (
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-gray-600">Deactivate?</span>
+                    <button
+                      onClick={() => handleToggle(partner)}
+                      disabled={togglingId === partner._id}
+                      className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
+                    >
+                      Yes
+                    </button>
+                    <button
+                      onClick={() => setConfirmDeactivateId(null)}
+                      className="rounded-lg bg-gray-200 px-3 py-1.5 text-xs font-semibold text-black transition hover:bg-gray-300"
+                    >
+                      No
+                    </button>
+                  </div>
+                ) : (
                   <button
-                    onClick={() =>
-                      handleToggle(partner)
-                    }
-                    disabled={
-                      togglingId === partner._id
-                    }
+                    onClick={() => handleToggle(partner)}
+                    disabled={togglingId === partner._id}
                     className={`flex items-center justify-center gap-2 rounded-lg px-4 py-1.5 text-sm font-semibold transition disabled:opacity-50 ${
                       partner.isDeactivated
                         ? "bg-green-600 text-white hover:bg-green-700"
@@ -216,27 +222,22 @@ const AdminPartners = () => {
                   >
                     {togglingId === partner._id ? (
                       <>
-                        <Loader2
-                          size={16}
-                          className="animate-spin"
-                        />
+                        <Loader2 size={16} className="animate-spin" />
                         Updating...
                       </>
                     ) : (
                       <>
                         <Power size={16} />
-                        {partner.isDeactivated
-                          ? "Activate"
-                          : "Deactivate"}
+                        {partner.isDeactivated ? "Activate" : "Deactivate"}
                       </>
                     )}
                   </button>
-
-                </div>
+                )}
               </div>
-            ))}
-          </div>
-        )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
