@@ -85,17 +85,17 @@ const AdminDashboard = () => {
     searchParams.get("assignedToId") || "",
   );
 
-  // confirmArchiveId holds the job id currently showing its confirm popover.
-  // archivingId holds the job id whose archive request is in flight.
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
   const [confirmArchiveId, setConfirmArchiveId] = useState(null);
   const [archivingId, setArchivingId] = useState(null);
 
   // Wait 400ms after typing stops before updating the debounced value.
-  // If the user types again before that timer fires, the cleanup function
-  // cancels the pending update — so only the final pause actually triggers a fetch.
   useEffect(() => {
     const timer = setTimeout(() => {
       setClientNameFilter(searchInput);
+      setCurrentPage(1); // reset page once the debounced search actually fires
     }, 400);
     return () => clearTimeout(timer);
   }, [searchInput]);
@@ -123,7 +123,7 @@ const AdminDashboard = () => {
       setLoading(true);
       setError(null);
       try {
-        const params = {};
+        const params = { page: currentPage, limit: 10 };
         if (statusFilter) params.status = statusFilter;
         if (assignedToFilter) params.assignedToId = assignedToFilter;
         if (fromDate) params.fromDate = fromDate;
@@ -132,6 +132,7 @@ const AdminDashboard = () => {
 
         const response = await api.get("/api/jobs", { params });
         setJobs(response.data.totalJobs);
+        setTotalPages(response.data.totalPages);
       } catch (err) {
         setError(err?.response?.data?.message || "Failed to load jobs");
       } finally {
@@ -139,15 +140,20 @@ const AdminDashboard = () => {
       }
     };
     fetchJobs();
-  }, [statusFilter, assignedToFilter, fromDate, toDate, clientNameFilter]);
+  }, [
+    statusFilter,
+    assignedToFilter,
+    fromDate,
+    toDate,
+    clientNameFilter,
+    currentPage,
+  ]);
 
   const handleArchive = async (jobId) => {
     setArchivingId(jobId);
     try {
       const response = await api.patch(`/api/jobs/${jobId}/archive`);
       toast.success(response.data.message || "Job archived");
-      // Remove locally so it disappears from the main list immediately,
-      // regardless of whether the backend query itself excludes archived jobs.
       setJobs((prev) => prev.filter((job) => job._id !== jobId));
     } catch (err) {
       toast.error(err?.response?.data?.message || "Failed to archive job");
@@ -174,7 +180,10 @@ const AdminDashboard = () => {
 
         <PillSelect
           value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
+          onChange={(e) => {
+            setStatusFilter(e.target.value);
+            setCurrentPage(1);
+          }}
         >
           {STATUS_OPTIONS.map((opt) => (
             <option key={opt.value} value={opt.value}>
@@ -185,7 +194,10 @@ const AdminDashboard = () => {
 
         <PillSelect
           value={assignedToFilter}
-          onChange={(e) => setAssignedToFilter(e.target.value)}
+          onChange={(e) => {
+            setAssignedToFilter(e.target.value);
+            setCurrentPage(1);
+          }}
           disabled={partnersLoading}
         >
           <option value="">Assigned to</option>
@@ -202,7 +214,10 @@ const AdminDashboard = () => {
           <input
             type="date"
             value={fromDate}
-            onChange={(e) => setFromDate(e.target.value)}
+            onChange={(e) => {
+              setFromDate(e.target.value);
+              setCurrentPage(1);
+            }}
             className="bg-transparent focus:outline-none text-sm"
           />
         </div>
@@ -213,7 +228,10 @@ const AdminDashboard = () => {
           <input
             type="date"
             value={toDate}
-            onChange={(e) => setToDate(e.target.value)}
+            onChange={(e) => {
+              setToDate(e.target.value);
+              setCurrentPage(1);
+            }}
             className="bg-transparent focus:outline-none text-sm"
           />
         </div>
@@ -248,7 +266,6 @@ const AdminDashboard = () => {
                 key={job._id}
                 className="flex items-center gap-4 bg-white rounded-2xl border border-gray-200 p-4"
               >
-                {/* Date badge */}
                 <div className="flex flex-col items-center justify-center w-14 h-14 rounded-xl border border-gray-200 shrink-0">
                   <span className="text-lg font-semibold text-black leading-none">
                     {day}
@@ -256,17 +273,12 @@ const AdminDashboard = () => {
                   <span className="text-xs text-gray-500">{month}</span>
                 </div>
 
-                {/* Title + address */}
                 <div className="flex-1 min-w-0">
                   <p className="font-serif text-xl text-black capitalize truncate">
                     {job.clientName}
                   </p>
-                  {/* <p className="text-sm text-gray-500 truncate">
-                    {job.clientAddress}, {job.clientCity}
-                  </p> */}
                 </div>
 
-                {/* Location / Status / Assigned to */}
                 <div className="hidden md:flex flex-col text-sm w-32 shrink-0">
                   <span className="text-gray-400 text-xs">Location</span>
                   <span className="text-black truncate">{job.clientCity}</span>
@@ -351,6 +363,28 @@ const AdminDashboard = () => {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {!loading && !error && totalPages > 1 && (
+        <div className="flex items-center justify-center gap-3 mt-6">
+          <button
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="px-4 py-1.5 rounded-full border border-gray-300 text-sm text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50"
+          >
+            Prev
+          </button>
+          <span className="text-sm text-gray-600">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className="px-4 py-1.5 rounded-full border border-gray-300 text-sm text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50"
+          >
+            Next
+          </button>
         </div>
       )}
     </div>
