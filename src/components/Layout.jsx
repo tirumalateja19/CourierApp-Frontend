@@ -16,6 +16,7 @@ import { useAuth } from "../context/useAuth";
 
 const ADMIN_LINKS = [
   { to: "/admin/dashboard", label: "Jobs", icon: LayoutDashboard },
+  { to: "/admin/stats", label: "Stats", icon: LayoutDashboard },
   { to: "/admin/jobs/create-job", label: "Create Job", icon: PlusCircle },
   { to: "/admin/partners", label: "Partners", icon: Users },
   { to: "/admin/jobs/create-partner", label: "Create Partner", icon: UserPlus },
@@ -24,6 +25,7 @@ const ADMIN_LINKS = [
 ];
 const PARTNER_LINKS = [
   { to: "/partner/dashboard", label: "My Jobs", icon: LayoutDashboard },
+  { to: "/partner/stats", label: "Stats", icon: LayoutDashboard },
 ];
 
 const Layout = () => {
