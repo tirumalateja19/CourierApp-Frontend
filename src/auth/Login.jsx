@@ -7,6 +7,7 @@ import {
   Users,
   Camera,
   ShieldCheck,
+  Lock,
 } from "lucide-react";
 import { useAuth } from "../context/useAuth";
 
@@ -64,7 +65,7 @@ const Login = () => {
   };
 
   const tabClass = (role) =>
-    `flex-1 py-2 rounded-lg text-sm font-semibold transition ${
+    `flex-1 py-2.5 rounded-lg text-sm font-semibold transition ${
       activeRole === role
         ? "bg-black text-white"
         : "text-gray-500 hover:bg-gray-100"
@@ -121,7 +122,13 @@ const Login = () => {
 
       {/* Right — login card */}
       <div className="flex-1 flex items-center justify-center p-6 relative">
-        <div className="w-full max-w-sm">
+        {/* Soft ambient glow behind the card */}
+        <div
+          aria-hidden
+          className="absolute size-105 rounded-full bg-black/5 blur-3xl pointer-events-none"
+        />
+
+        <div className="w-full max-w-md relative">
           <style>{`
             @keyframes cardFlipIn {
               from { transform: rotateY(90deg); opacity: 0; }
@@ -136,9 +143,14 @@ const Login = () => {
             }
           `}</style>
 
-          <div className="bg-white border border-gray-200 shadow-xl rounded-2xl p-8">
+          <div className="bg-white border border-gray-200 shadow-2xl rounded-3xl p-10">
+            {/* Icon badge */}
+            <div className="flex items-center justify-center size-12 rounded-2xl bg-black text-white mb-5 shadow-sm">
+              <Lock className="size-5" strokeWidth={2.5} />
+            </div>
+
             {/* Role tabs */}
-            <div className="flex bg-gray-100 rounded-xl p-1 gap-1 mb-6">
+            <div className="flex bg-gray-100 rounded-xl p-1 gap-1 mb-7">
               <button
                 type="button"
                 onClick={() => handleTabSwitch("admin")}
@@ -157,16 +169,16 @@ const Login = () => {
 
             <div className="card-flip-wrap">
               <div key={activeRole} className="card-flip">
-                <h2 className="text-2xl font-serif text-black mb-1">
+                <h2 className="text-3xl font-serif text-black mb-1.5">
                   {activeRole === "admin" ? "Admin login" : "Partner login"}
                 </h2>
-                <p className="text-sm text-gray-500 mb-6">
+                <p className="text-sm text-gray-500 mb-7">
                   Sign in to your {activeRole === "admin" ? "admin" : "partner"}{" "}
                   dashboard
                 </p>
 
                 {error && (
-                  <div className="text-sm text-red-600 text-center bg-red-50 border border-red-200 rounded-lg py-2 px-3 mb-4">
+                  <div className="text-sm text-red-600 text-center bg-red-50 border border-red-200 rounded-lg py-2.5 px-3 mb-5">
                     {error}
                   </div>
                 )}
@@ -174,7 +186,7 @@ const Login = () => {
                 <form onSubmit={handleSubmit}>
                   <label
                     htmlFor="userName"
-                    className="block text-sm font-medium text-black mb-1"
+                    className="block text-sm font-medium text-black mb-1.5"
                   >
                     Username
                   </label>
@@ -182,7 +194,7 @@ const Login = () => {
                     type="text"
                     id="userName"
                     name="userName"
-                    className="w-full p-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:border-black transition"
+                    className="w-full p-3 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-black focus:ring-2 focus:ring-black/5 transition"
                     value={userName}
                     onChange={(e) => setUserName(e.target.value)}
                     required
@@ -195,7 +207,7 @@ const Login = () => {
 
                   <label
                     htmlFor="password"
-                    className="block text-sm font-medium text-black mt-4 mb-1"
+                    className="block text-sm font-medium text-black mt-5 mb-1.5"
                   >
                     Password
                   </label>
@@ -206,7 +218,7 @@ const Login = () => {
                       name="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full p-2.5 pr-10 rounded-lg border border-gray-300 text-sm focus:outline-none focus:border-black transition"
+                      className="w-full p-3 pr-11 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-black focus:ring-2 focus:ring-black/5 transition"
                       required
                       placeholder="Password"
                       minLength="8"
@@ -216,7 +228,7 @@ const Login = () => {
                     <button
                       type="button"
                       onClick={() => setShowPassword((prev) => !prev)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black transition"
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black transition"
                       aria-label={
                         showPassword ? "Hide password" : "Show password"
                       }
@@ -233,7 +245,7 @@ const Login = () => {
                     <button
                       type="submit"
                       disabled={submitting}
-                      className="flex-1 mt-6 bg-black text-white font-semibold py-2.5 rounded-lg hover:bg-gray-800 transition disabled:opacity-50"
+                      className="flex-1 mt-7 bg-black text-white font-semibold py-3 rounded-xl hover:bg-gray-800 active:scale-[0.99] transition disabled:opacity-50"
                     >
                       {submitting ? "Logging in..." : "Sign in"}
                     </button>
@@ -242,7 +254,7 @@ const Login = () => {
                       type="button"
                       onClick={reset}
                       disabled={submitting}
-                      className="mt-6 px-4 bg-gray-100 text-black font-semibold rounded-lg hover:bg-gray-200 transition disabled:opacity-50"
+                      className="mt-7 px-5 bg-gray-100 text-black font-semibold rounded-xl hover:bg-gray-200 transition disabled:opacity-50"
                     >
                       Clear
                     </button>

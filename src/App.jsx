@@ -14,6 +14,8 @@ import Login from "./auth/Login.jsx";
 import AuditLogList from "./admin/AuditLogList.jsx";
 import AuditLogDetail from "./admin/AuditLogDetails.jsx";
 import ArchivedJobs from "./admin/ArchivedJobs.jsx";
+import PartnerStats from "./partner/PartnerStats.jsx";
+import AdminStats from "./admin/AdminStats.jsx";
 
 const App = () => {
   return (
@@ -36,6 +38,7 @@ const App = () => {
               path="/admin/jobs/create-partner"
               element={<CreatePartner />}
             ></Route>
+            <Route path="/admin/stats" element={<AdminStats />}></Route>
             <Route path="/admin/jobs/:id" element={<AdminJobDetail />}></Route>
             <Route
               path="/admin/jobs/archived"
@@ -56,6 +59,7 @@ const App = () => {
               path="/partner/jobs/:id"
               element={<PartnerJobDetail />}
             ></Route>
+            <Route path="/partner/stats" element={<PartnerStats />} />
           </Route>
         </Route>
 
