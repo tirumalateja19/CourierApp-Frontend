@@ -303,7 +303,7 @@ const AdminJobDetail = () => {
 
           <div className={sectionClass}>
             <h3 className={sectionLabelClass}>Photo upload</h3>
-            <PhotoUpload jobId={id} />
+            <PhotoUpload jobId={id} locked={jobData.locked} />
           </div>
 
           <div className={sectionClass}>
