@@ -57,6 +57,11 @@ const ArchivedJobs = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  // Filter state
   const [assignedToFilter, setAssignedToFilter] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
@@ -69,11 +74,16 @@ const ArchivedJobs = () => {
   const [partners, setPartners] = useState([]);
   const [partnersLoading, setPartnersLoading] = useState(true);
 
+  // 1. Debounce Search & Reset Page
   useEffect(() => {
-    const timer = setTimeout(() => setClientNameFilter(searchInput), 400);
+    const timer = setTimeout(() => {
+      setClientNameFilter(searchInput);
+      setCurrentPage(1); // Reset to page 1 on new search
+    }, 400);
     return () => clearTimeout(timer);
   }, [searchInput]);
 
+  // 2. Fetch Partners for the dropdown
   useEffect(() => {
     const fetchPartners = async () => {
       setPartnersLoading(true);
@@ -89,12 +99,13 @@ const ArchivedJobs = () => {
     fetchPartners();
   }, []);
 
+  // 3. Fetch Jobs with standard pagination
   useEffect(() => {
     const fetchJobs = async () => {
       setLoading(true);
       setError(null);
       try {
-        const params = {};
+        const params = { page: currentPage, limit: 10 };
         if (assignedToFilter) params.assignedToId = assignedToFilter;
         if (fromDate) params.fromDate = fromDate;
         if (toDate) params.toDate = toDate;
@@ -102,6 +113,7 @@ const ArchivedJobs = () => {
 
         const response = await api.get("/api/jobs/archived", { params });
         setJobs(response.data.jobs);
+        setTotalPages(response.data.totalPages);
       } catch (err) {
         setError(err?.response?.data?.message || "Failed to load jobs");
       } finally {
@@ -109,7 +121,7 @@ const ArchivedJobs = () => {
       }
     };
     fetchJobs();
-  }, [assignedToFilter, fromDate, toDate, clientNameFilter]);
+  }, [assignedToFilter, fromDate, toDate, clientNameFilter, currentPage]);
 
   const handleUnarchive = async (jobId) => {
     setUnarchivingId(jobId);
@@ -117,6 +129,7 @@ const ArchivedJobs = () => {
       const response = await api.patch(`/api/jobs/${jobId}/unarchive`);
       toast.success(response.data.message || "Job unarchived");
       setJobs((prev) => prev.filter((job) => job._id !== jobId));
+      // Optional: If you unarchive the last item on a page > 1, you might want to adjust currentPage
     } catch (err) {
       toast.error(err?.response?.data?.message || "Failed to unarchive job");
     } finally {
@@ -141,7 +154,10 @@ const ArchivedJobs = () => {
 
         <PillSelect
           value={assignedToFilter}
-          onChange={(e) => setAssignedToFilter(e.target.value)}
+          onChange={(e) => {
+            setAssignedToFilter(e.target.value);
+            setCurrentPage(1); // Reset page on filter change
+          }}
           disabled={partnersLoading}
         >
           <option value="">Assigned to</option>
@@ -158,7 +174,10 @@ const ArchivedJobs = () => {
           <input
             type="date"
             value={fromDate}
-            onChange={(e) => setFromDate(e.target.value)}
+            onChange={(e) => {
+              setFromDate(e.target.value);
+              setCurrentPage(1); // Reset page on filter change
+            }}
             className="bg-transparent focus:outline-none text-sm"
           />
         </div>
@@ -169,7 +188,10 @@ const ArchivedJobs = () => {
           <input
             type="date"
             value={toDate}
-            onChange={(e) => setToDate(e.target.value)}
+            onChange={(e) => {
+              setToDate(e.target.value);
+              setCurrentPage(1); // Reset page on filter change
+            }}
             className="bg-transparent focus:outline-none text-sm"
           />
         </div>
@@ -290,6 +312,29 @@ const ArchivedJobs = () => {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Standard Numbered Pagination */}
+      {!loading && !error && totalPages > 1 && (
+        <div className="flex items-center justify-center gap-3 mt-6">
+          <button
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="px-4 py-1.5 rounded-full border border-gray-300 text-sm text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50"
+          >
+            Prev
+          </button>
+          <span className="text-sm text-gray-600">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className="px-4 py-1.5 rounded-full border border-gray-300 text-sm text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50"
+          >
+            Next
+          </button>
         </div>
       )}
     </div>

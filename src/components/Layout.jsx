@@ -16,6 +16,7 @@ import { useAuth } from "../context/useAuth";
 
 const ADMIN_LINKS = [
   { to: "/admin/dashboard", label: "Jobs", icon: LayoutDashboard },
+  { to: "/admin/stats", label: "Stats", icon: LayoutDashboard },
   { to: "/admin/jobs/create-job", label: "Create Job", icon: PlusCircle },
   { to: "/admin/partners", label: "Partners", icon: Users },
   { to: "/admin/jobs/create-partner", label: "Create Partner", icon: UserPlus },
@@ -24,6 +25,7 @@ const ADMIN_LINKS = [
 ];
 const PARTNER_LINKS = [
   { to: "/partner/dashboard", label: "My Jobs", icon: LayoutDashboard },
+  { to: "/partner/stats", label: "Stats", icon: LayoutDashboard },
 ];
 
 const Layout = () => {
@@ -54,9 +56,9 @@ const Layout = () => {
       <aside
         className={`fixed inset-y-0 left-0 z-50 flex flex-col justify-between border-r border-gray-200 bg-gray-50 transition-all duration-300 ${
           sidebarOpen ? "translate-x-0 w-64" : "-translate-x-full"
-        } lg:static lg:translate-x-0 ${sidebarOpen ? "lg:w-56" : "lg:w-16"}`}
+        } lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${sidebarOpen ? "lg:w-56" : "lg:w-16"}`}
       >
-        <div>
+        <div className="flex flex-col h-full min-h-0">
           {/* Sidebar Header with Toggle */}
           <div
             className={`flex items-center py-4 ${
@@ -77,7 +79,7 @@ const Layout = () => {
           </div>
 
           {/* Navigation Links */}
-          <nav className="flex flex-col gap-1 px-3 mt-2">
+          <nav className="flex flex-col gap-1 px-3 mt-2 overflow-y-auto flex-1">
             {links.map((link) => {
               const Icon = link.icon;
               return (
@@ -109,7 +111,7 @@ const Layout = () => {
         </div>
 
         {/* Footer Actions */}
-        <div className="flex flex-col gap-1 border-t border-gray-200 px-3 py-4">
+        <div className="flex flex-col gap-1 border-t border-gray-200 px-3 py-4 shrink-0">
           {sidebarOpen && (
             <div className="flex items-center gap-2 truncate px-3 pb-2 text-sm capitalize text-gray-500">
               <CircleUserRound className="size-5 shrink-0" />
