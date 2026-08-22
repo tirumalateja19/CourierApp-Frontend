@@ -1,7 +1,6 @@
 import { useState, useMemo } from "react";
 import toast from "react-hot-toast";
 import api from "../api/axios";
-import { useAuth } from "../context/useAuth";
 
 const PACKING_OPTIONS = [
   { value: "packed_at_source", label: "Packed at client" },
@@ -37,7 +36,6 @@ const getChargeableWeight = (pkg) => {
 };
 
 const JobDetailsForm = ({ jobData, jobId, setJobData }) => {
-  const { user } = useAuth();
   const [receiverName, setReceiverName] = useState(jobData.receiverName || "");
   const [receiverNumber, setReceiverNumber] = useState(
     jobData.receiverNumber || "",
@@ -225,12 +223,7 @@ const JobDetailsForm = ({ jobData, jobId, setJobData }) => {
               placeholder="0.00"
               value={price}
               onChange={(e) => setPrice(e.target.value)}
-              disabled={user?.role !== "admin"}
-              className={`${inputClass} ${
-                user?.role !== "admin"
-                  ? "bg-gray-100 cursor-not-allowed opacity-60"
-                  : ""
-              }`}
+              className={inputClass}
             />
           </div>
           <div className="w-full">

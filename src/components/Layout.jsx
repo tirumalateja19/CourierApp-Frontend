@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { Outlet, NavLink, useLocation } from "react-router";
 import {
-  LayoutDashboard,
-  PlusCircle,
   UserPlus,
   Users,
   KeyRound,
@@ -11,21 +9,24 @@ import {
   Menu,
   Archive,
   CircleUserRound,
+  ChartNoAxesCombined,
+  Package,
+  PackagePlus,
 } from "lucide-react";
 import { useAuth } from "../context/useAuth";
 
 const ADMIN_LINKS = [
-  { to: "/admin/dashboard", label: "Jobs", icon: LayoutDashboard },
-  { to: "/admin/stats", label: "Stats", icon: LayoutDashboard },
-  { to: "/admin/jobs/create-job", label: "Create Job", icon: PlusCircle },
+  { to: "/admin/dashboard", label: "Jobs", icon: Package },
+  { to: "/admin/jobs/create-job", label: "Create Job", icon: PackagePlus },
   { to: "/admin/partners", label: "Partners", icon: Users },
   { to: "/admin/jobs/create-partner", label: "Create Partner", icon: UserPlus },
-  { to: "/admin/jobs/archived", label: "Archive", icon: Archive },
+  { to: "/admin/stats", label: "Stats", icon: ChartNoAxesCombined },
   { to: "/admin/audit-logs", label: "Audit Logs", icon: History },
+  { to: "/admin/jobs/archived", label: "Archive", icon: Archive },
 ];
 const PARTNER_LINKS = [
-  { to: "/partner/dashboard", label: "My Jobs", icon: LayoutDashboard },
-  { to: "/partner/stats", label: "Stats", icon: LayoutDashboard },
+  { to: "/partner/dashboard", label: "My Jobs", icon: Package },
+  { to: "/partner/stats", label: "Stats", icon: ChartNoAxesCombined },
 ];
 
 const Layout = () => {
@@ -98,7 +99,7 @@ const Layout = () => {
                   }
                   title={!sidebarOpen ? link.label : undefined} // Tooltip when collapsed
                 >
-                  <Icon className="size-4 shrink-0" />
+                  <Icon className="size-5 shrink-0" />
                   {sidebarOpen && (
                     <span className="whitespace-nowrap text-sm font-medium">
                       {link.label}
@@ -132,7 +133,7 @@ const Layout = () => {
             }
             title={!sidebarOpen ? "Change Password" : undefined}
           >
-            <KeyRound className="size-4 shrink-0" />
+            <KeyRound className="size-5 shrink-0" />
             {sidebarOpen && (
               <span className="whitespace-nowrap text-sm font-medium">
                 Change Password
@@ -146,7 +147,7 @@ const Layout = () => {
             }`}
             title={!sidebarOpen ? "Log Out" : undefined}
           >
-            <LogOut className="size-4 shrink-0" />
+            <LogOut className="size-5 shrink-0" />
             {sidebarOpen && (
               <span className="whitespace-nowrap text-sm font-medium">
                 Log Out

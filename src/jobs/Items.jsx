@@ -1,8 +1,74 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
 import api from "../api/axios";
 
 const inputClass = "p-2 rounded-lg border border-gray-300 text-sm";
+
+// Reusable text input with a filtered, click-to-select suggestions dropdown.
+const ItemNameInput = ({
+  value,
+  onChange,
+  suggestions,
+  className,
+  placeholder,
+  required,
+}) => {
+  const [open, setOpen] = useState(false);
+  const wrapperRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const filtered =
+    value.trim() === ""
+      ? []
+      : suggestions.filter((s) =>
+          s.toLowerCase().includes(value.trim().toLowerCase()),
+        );
+
+  return (
+    <div ref={wrapperRef} className="relative">
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => {
+          onChange(e.target.value);
+          setOpen(true);
+        }}
+        onFocus={() => setOpen(true)}
+        placeholder={placeholder}
+        required={required}
+        autoComplete="off"
+        className={className}
+      />
+      {open && filtered.length > 0 && (
+        <ul className="absolute z-20 mt-1 w-full max-h-40 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
+          {filtered.map((name) => (
+            <li key={name}>
+              <button
+                type="button"
+                onClick={() => {
+                  onChange(name);
+                  setOpen(false);
+                }}
+                className="w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 transition"
+              >
+                {name}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
 
 const Items = ({ items, jobId, setItems }) => {
   const [itemName, setItemName] = useState("");
@@ -17,6 +83,20 @@ const Items = ({ items, jobId, setItems }) => {
   const [savingEdit, setSavingEdit] = useState(false);
 
   const [deletingId, setDeletingId] = useState(null);
+
+  const [suggestions, setSuggestions] = useState([]);
+
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      try {
+        const response = await api.get("/api/jobs/pickup/items/suggestions");
+        setSuggestions(response.data.suggestions || []);
+      } catch {
+        // Suggestions are a nice-to-have; fail silently, don't block the form
+      }
+    };
+    fetchSuggestions();
+  }, []);
 
   const resetAddForm = () => {
     setItemName("");
@@ -102,10 +182,10 @@ const Items = ({ items, jobId, setItems }) => {
                 key={item._id}
                 className="flex flex-wrap items-center gap-2 border-b border-gray-100 py-2"
               >
-                <input
-                  type="text"
+                <ItemNameInput
                   value={editItemName}
-                  onChange={(e) => setEditItemName(e.target.value)}
+                  onChange={setEditItemName}
+                  suggestions={suggestions}
                   className={`${inputClass} w-32`}
                 />
                 <input
@@ -172,13 +252,13 @@ const Items = ({ items, jobId, setItems }) => {
         onSubmit={handleAdd}
         className="flex flex-wrap items-center gap-2 mt-2"
       >
-        <input
-          type="text"
+        <ItemNameInput
           value={itemName}
-          onChange={(e) => setItemName(e.target.value)}
+          onChange={setItemName}
+          suggestions={suggestions}
+          className={`${inputClass} w-32`}
           placeholder="Item name"
           required
-          className={`${inputClass} w-32`}
         />
         <input
           type="number"
